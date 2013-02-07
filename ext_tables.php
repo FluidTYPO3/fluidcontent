@@ -8,7 +8,7 @@ define('FLUIDCONTENT_TEMPFILE', PATH_site . 'typo3temp/.FED_CONTENT');
 Tx_Flux_Core::unregisterConfigurationProvider('Tx_Fed_Provider_Configuration_ContentObjectConfigurationProvider');
 Tx_Flux_Core::registerConfigurationProvider('Tx_Fluidcontent_Provider_ContentConfigurationProvider');
 
-t3lib_extMgm::addPlugin(array('Fluid Content', 'fed_fce', t3lib_extMgm::extRelPath('fluidcontent') . 'ext_icon.gif'), 'CType');
+t3lib_extMgm::addPlugin(array('Fluid Content', 'fluidcontent_content', t3lib_extMgm::extRelPath('fluidcontent') . 'ext_icon.gif'), 'CType');
 t3lib_extMgm::addStaticFile($_EXTKEY, 'Configuration/TypoScript', 'Fluid Content');
 t3lib_extMgm::addTCAcolumns('tt_content', array(
 	'tx_fed_fcefile' => array (
@@ -20,8 +20,8 @@ t3lib_extMgm::addTCAcolumns('tt_content', array(
 		)
 	),
 ), 1);
-$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['fed_fce'] = 'pi_flexform';
-$GLOBALS['TCA']['tt_content']['types']['fed_fce']['showitem'] = '
+$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['fluidcontent_content'] = 'pi_flexform';
+$GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.general;general,
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.header;header,
 	--div--;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.content_settings,
@@ -35,7 +35,7 @@ $GLOBALS['TCA']['tt_content']['types']['fed_fce']['showitem'] = '
 	--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.extended,
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.extended;extended
 	 ';
-$GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fed_fce'] = 'apps-pagetree-root';
+$GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'] = 'apps-pagetree-root';
 
 if (file_exists(FLUIDCONTENT_TEMPFILE)) {
 	t3lib_extMgm::addPageTSConfig(file_get_contents(FLUIDCONTENT_TEMPFILE));
