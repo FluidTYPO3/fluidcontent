@@ -121,6 +121,9 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		$view->assignMultiple($this->flexFormService->setContentObjectData($row)->getAll());
 		try {
 			$stored = $view->getStoredVariable('Tx_Flux_ViewHelpers_FlexformViewHelper', 'storage', 'Configuration');
+			if (NULL === $stored) {
+				return NULL;
+			}
 			$stored['sheets'] = array();
 			foreach ($stored['fields'] as $field) {
 				$groupKey = $field['sheets']['name'];
@@ -136,7 +139,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 			}
 			return $stored;
 		} catch (Exception $e) {
-			t3lib_div::sysLog('Fluid Content Element error: ' . $e->getMessage(), 'fluidcontent');
+			$this->debugService->debug($e);
 			return NULL;
 		}
 	}

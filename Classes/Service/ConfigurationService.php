@@ -127,7 +127,16 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 				foreach ($files as $templateFilename) {
 					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
 					$contentConfiguration = $this->flexFormService->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $templatePathSet);
+					if (FALSE === is_array($contentConfiguration)) {
+						$this->sendDisabledContentWarning($templateFilename);
+						continue;
+					}
+					if (0 === count($contentConfiguration)) {
+						$this->sendDisabledContentWarning($templateFilename);
+						continue;
+					}
 					if ($contentConfiguration['enabled'] === 'FALSE') {
+						$this->sendDisabledContentWarning($templateFilename);
 						continue;
 					}
 					if (isset($contentConfiguration['wizardTab'])) {
@@ -214,6 +223,14 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 		$pattern = '/([^a-z0-9\-]){1,}/i';
 		$string = preg_replace($pattern, '-', $string);
 		return trim($string, '-');
+	}
+
+	/**
+	 * @param string $templatePathAndFilename
+	 * @return void
+	 */
+	protected function sendDisabledContentWarning($templatePathAndFilename) {
+		$this->debugService->message('Disabled Fluid Content Element: ' . $templatePathAndFilename , t3lib_div::SYSLOG_SEVERITY_NOTICE);
 	}
 
 }
