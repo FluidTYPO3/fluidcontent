@@ -4,6 +4,7 @@ if (!defined ('TYPO3_MODE')) {
 }
 
 define('FLUIDCONTENT_TEMPFILE', PATH_site . 'typo3temp/.FED_CONTENT');
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup'] = unserialize($_EXTCONF);
 
 Tx_Flux_Core::unregisterConfigurationProvider('Tx_Fed_Provider_Configuration_ContentObjectConfigurationProvider');
 Tx_Flux_Core::registerConfigurationProvider('Tx_Fluidcontent_Provider_ContentConfigurationProvider');
@@ -21,11 +22,18 @@ t3lib_extMgm::addTCAcolumns('tt_content', array(
 		)
 	),
 ), 1);
+
+if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup']['removeTab']) {
+	$tab = NULL;
+} else {
+	$tab = '--div--;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.content_settings,';
+}
+
 $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['fed_fce'] = 'pi_flexform';
 $GLOBALS['TCA']['tt_content']['types']['fed_fce']['showitem'] = '
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.general;general,
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.header;header,
-	--div--;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.content_settings,
+	' . $tab . '
 	tx_fed_fcefile;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.element_type,
 	pi_flexform;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.configuration,
 	--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.appearance,
@@ -41,3 +49,5 @@ $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fed_fce'] = 'apps-pag
 if (file_exists(FLUIDCONTENT_TEMPFILE)) {
 	t3lib_extMgm::addPageTSConfig(file_get_contents(FLUIDCONTENT_TEMPFILE));
 }
+
+unset($tab);
