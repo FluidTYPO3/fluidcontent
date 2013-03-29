@@ -98,7 +98,6 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 		$template->runThroughTemplates($rootLine);
 		$template->generateConfig();
 		$allTemplatePaths = $template->setup['plugin.']['tx_fed.']['fce.'];
-		$allTemplatePaths = Tx_Flux_Utility_Path::translatePath($allTemplatePaths);
 		if (is_array($allTemplatePaths) === FALSE) {
 			return FALSE;
 		}
@@ -119,14 +118,20 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 		$wizardTabs = array();
 		foreach ($allTemplatePaths as $key => $templatePathSet) {
 			$key = trim($key, '.');
-			$templatePathSet = Tx_Flux_Utility_Path::translatePath($templatePathSet);
-			$templateRootPath = $templatePathSet['templateRootPath'];
+			$extensionKey = TRUE === isset($templatePathSet['extensionKey']) ? $templatePathSet['extensionKey'] : $key;
+			$paths = array(
+				'templateRootPath' => TRUE === isset($templatePathSet['templateRootPath']) ? $templatePathSet['templateRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Templates/',
+				'layoutRootPath' => TRUE === isset($templatePathSet['layoutRootPath']) ? $templatePathSet['layoutRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Layouts/',
+				'partialRootPath' => TRUE === isset($templatePathSet['partialRootPath']) ? $templatePathSet['partialRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Partials/',
+			);
+			$paths = Tx_Flux_Utility_Path::translatePath($paths);
+			$templateRootPath = $paths['templateRootPath'];
 			$files = array();
 			$files = t3lib_div::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
 			if (count($files) > 0) {
 				foreach ($files as $templateFilename) {
 					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
-					$contentConfiguration = $this->flexFormService->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $templatePathSet);
+					$contentConfiguration = $this->flexFormService->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths);
 					if (FALSE === is_array($contentConfiguration)) {
 						$this->sendDisabledContentWarning($templateFilename);
 						continue;
@@ -146,6 +151,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 					$id = $key . '_' . preg_replace('/[\.\/]/', '_', $fileRelPath);
 					$elementTsConfig = $this->buildWizardTabItem($tabId, $id, $contentConfiguration, $key . ':' . $fileRelPath);
 					$wizardTabs[$tabId]['elements'][$id] = $elementTsConfig;
+					$wizardTabs[$tabId]['key'] = $extensionKey;
 				}
 			}
 		}
@@ -172,11 +178,13 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 					header = %s
 					show = %s
 					position = 0
+					key = %s
 				}
 				',
 				$tabId,
 				$tab['title'],
-				implode(',', array_keys($tab['elements']))
+				implode(',', array_keys($tab['elements'])),
+				$tab['key']
 			);
 		}
 		return $pageTsConfig;

@@ -63,55 +63,27 @@ class Tx_Fluidcontent_Backend_ContentSelector {
 	 * @return string
 	 */
 	public function renderField(array &$parameters, &$parentObject) {
-		$allTemplatePaths = $this->configurationService->getContentConfiguration();
+		if (FALSE === file_exists(PATH_site . 'typo3temp/.FED_CONTENT')) {
+			return NULL;
+		}
+		$pageTypoScript = file_get_contents(PATH_site . 'typo3temp/.FED_CONTENT');
+		$tsParser = new t3lib_TSparser();
+		$tsParser->parse($pageTypoScript);
+		$setup = $tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'];
+		$setup = t3lib_div::removeDotsFromTS($setup);
 		$name = $parameters['itemFormElName'];
 		$value = $parameters['itemFormElValue'];
 		$select = '<div><select name="' . htmlspecialchars($name) . '"  class="formField select" onchange="if (confirm(TBE_EDITOR.labels.onChangeAlert) && TBE_EDITOR.checkSubmit(-1)){ TBE_EDITOR.submitForm() };">' . LF;
 		$select .= '<option value="">' . $GLOBALS['LANG']->sL('LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:tt_content.tx_fed_fcefile', TRUE) . '</option>' . LF;
-		foreach ($allTemplatePaths as $key => $templatePathSet) {
-			$files = array();
-			$files = t3lib_div::getAllFilesAndFoldersInPath($files, $templatePathSet['templateRootPath']);
-			$templateRootPath = t3lib_div::getFileAbsFileName($templatePathSet['templateRootPath']);
-			if (count($files) > 0) {
-				if ($templatePathSet['label']) {
-					$groupLabel = $templatePathSet['label'];
-				} elseif (!t3lib_extMgm::isLoaded($key)) {
-					$groupLabel = ucfirst($key);
-				} else {
-					$emConfigFile = t3lib_extMgm::extPath($key, 'ext_emconf.php');
-					require $emConfigFile;
-					$groupLabel = empty($EM_CONF['']['title']) ? ucfirst($key) : $EM_CONF['']['title'];
-				}
-				$select .= '<optgroup label="' . htmlspecialchars($groupLabel) . '">' . LF;
-				foreach ($files as $templateFilename) {
-					if (0 === strpos(basename($templateFilename), '.')) {
-						continue;
-					}
-					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
-					$view = $this->objectManager->get('Tx_Flux_MVC_View_ExposedStandaloneView');
-					$view->setTemplatePathAndFilename($templateFilename);
-					try {
-						$config =  $view->getStoredVariable('Tx_Flux_ViewHelpers_FlexformViewHelper', 'storage', 'Configuration');
-						$enabled = $config['enabled'];
-						$label = $config['label'];
-						if ($enabled !== FALSE) {
-							$optionValue = $key . ':' . $fileRelPath;
-							if (!$label) {
-								$label = $templateFilename;
-							}
-							$translatedLabel = Tx_Extbase_Utility_Localization::translate($label, $key);
-							if ($translatedLabel !== NULL) {
-								$label = $translatedLabel;
-							}
-							$selected = ($optionValue === $value ? ' selected="selected"' : '');
-							$select .= '<option value="' . htmlspecialchars($optionValue) . '"' . $selected . '>' . htmlspecialchars($label) . '</option>' . LF;
-						}
-					} catch (Exception $e) {
-						$select .= '<option value="">INVALID: ' . $fileRelPath . ' (Exception # ' . $e->getMessage() . ')</option>' . LF;
-					}
-				}
-				$select .= '</optgroup>' . LF;
+		foreach ($setup as $groupLabel => $configuration) {
+			$select .= '<optgroup label="' . htmlspecialchars($groupLabel) . '">' . LF;
+			foreach ($configuration['elements'] as $elementConfiguration) {
+				$optionValue = $elementConfiguration['tt_content_defValues']['tx_fed_fcefile'];
+				$selected = ($optionValue === $value ? ' selected="selected"' : '');
+				$label = $elementConfiguration['title'];
+				$select .= '<option value="' . htmlspecialchars($optionValue) . '"' . $selected . '>' . htmlspecialchars($label) . '</option>' . LF;
 			}
+			$select .= '</optgroup>' . LF;
 		}
 		$select .= '</select></div>' . LF;
 		unset($parentObject);
