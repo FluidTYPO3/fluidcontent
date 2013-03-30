@@ -81,6 +81,7 @@ class Tx_Fluidcontent_Backend_ContentSelector {
 				$optionValue = $elementConfiguration['tt_content_defValues']['tx_fed_fcefile'];
 				$selected = ($optionValue === $value ? ' selected="selected"' : '');
 				$label = $elementConfiguration['title'];
+				$label = $GLOBALS['LANG']->sL($label);
 				$select .= '<option value="' . htmlspecialchars($optionValue) . '"' . $selected . '>' . htmlspecialchars($label) . '</option>' . LF;
 			}
 			$select .= '</optgroup>' . LF;
