@@ -97,7 +97,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		if ($paths === NULL) {
 			return NULL;
 		}
-		$templatePathAndFilename = Tx_Flux_Utility_Path::translatePath($paths['templateRootPath'] . $filename);
+		$templatePathAndFilename = $paths['templateRootPath'] . $filename;
 		return $templatePathAndFilename;
 	}
 
@@ -112,7 +112,9 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		if ($paths === NULL) {
 			return NULL;
 		}
-		$templatePathAndFilename = Tx_Flux_Utility_Path::translatePath($paths['templateRootPath'] . $filename);
+		$extensionKey = (TRUE === isset($paths['extensionKey']) ? $paths['extensionKey'] : $this->getExtensionKey($row));
+		$extensionName = t3lib_div::underscoredToUpperCamelCase($extensionKey);
+		$templatePathAndFilename = $paths['templateRootPath'] . $filename;
 		$view = $this->objectManager->get('Tx_Flux_MVC_View_ExposedStandaloneView');
 		$view->setTemplatePathAndFilename($templatePathAndFilename);
 		$this->flexFormService->setContentObjectData($row);
@@ -120,7 +122,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		$view->assignMultiple($flexform);
 		$view->assignMultiple($this->flexFormService->setContentObjectData($row)->getAll());
 		try {
-			$stored = $view->getStoredVariable('Tx_Flux_ViewHelpers_FlexformViewHelper', 'storage', 'Configuration');
+			$stored = $view->getStoredVariable('Tx_Flux_ViewHelpers_FlexformViewHelper', 'storage', 'Configuration', $paths, $extensionName);
 			if (NULL === $stored) {
 				return NULL;
 			}
@@ -152,6 +154,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		$templatePathAndFilename = $row['tx_fed_fcefile'];
 		$extensionName = array_shift(explode(':', $templatePathAndFilename));
 		$paths = $this->configurationService->getContentConfiguration($extensionName);
+		$paths = Tx_Flux_Utility_Path::translatePath($paths);
 		if ($this->configurationService->checkDependenciesForConfiguration($paths) === FALSE) {
 			return NULL;
 		}

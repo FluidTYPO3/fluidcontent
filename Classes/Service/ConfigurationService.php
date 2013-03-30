@@ -119,6 +119,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 		foreach ($allTemplatePaths as $key => $templatePathSet) {
 			$key = trim($key, '.');
 			$extensionKey = TRUE === isset($templatePathSet['extensionKey']) ? $templatePathSet['extensionKey'] : $key;
+			$extensionName = t3lib_div::underscoredToUpperCamelCase($extensionKey);
 			$paths = array(
 				'templateRootPath' => TRUE === isset($templatePathSet['templateRootPath']) ? $templatePathSet['templateRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Templates/',
 				'layoutRootPath' => TRUE === isset($templatePathSet['layoutRootPath']) ? $templatePathSet['layoutRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Layouts/',
@@ -131,7 +132,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 			if (count($files) > 0) {
 				foreach ($files as $templateFilename) {
 					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
-					$contentConfiguration = $this->flexFormService->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths);
+					$contentConfiguration = $this->flexFormService->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths, $extensionName);
 					if (FALSE === is_array($contentConfiguration)) {
 						$this->sendDisabledContentWarning($templateFilename);
 						continue;
