@@ -33,25 +33,12 @@
  * @package Fluidcontent
  * @subpackage Service
  */
-class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Configuration implements t3lib_Singleton {
-
-	/**
-	 * @var Tx_Flux_Service_FlexForm
-	 */
-	protected $flexFormService;
+class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxService implements t3lib_Singleton {
 
 	/**
 	 * @var string
 	 */
 	protected $defaultIcon;
-
-	/**
-	 * @param Tx_Flux_Service_FlexForm $flexFormService
-	 * @return void
-	 */
-	public function injectFlexFormService(Tx_Flux_Service_FlexForm $flexFormService) {
-		$this->flexFormService = $flexFormService;
-	}
 
 	/**
 	 * CONSTRUCTOR
@@ -132,7 +119,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_Confi
 			if (count($files) > 0) {
 				foreach ($files as $templateFilename) {
 					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
-					$contentConfiguration = $this->flexFormService->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths, $extensionName);
+					$contentConfiguration = $this->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths, $extensionName);
 					if (FALSE === is_array($contentConfiguration)) {
 						$this->sendDisabledContentWarning($templateFilename);
 						continue;

@@ -38,24 +38,11 @@ class Tx_Fluidcontent_Controller_ContentController extends Tx_Extbase_MVC_Contro
 	protected $configurationService;
 
 	/**
-	 * @var Tx_Flux_Service_FlexForm
-	 */
-	protected $flexFormService;
-
-	/**
 	 * @param Tx_Fluidcontent_Service_ConfigurationService $configurationService
 	 * @return void
 	 */
 	public function injectConfigurationService(Tx_Fluidcontent_Service_ConfigurationService $configurationService) {
 		$this->configurationService = $configurationService;
-	}
-
-	/**
-	 * @param Tx_Flux_Service_FlexForm $flexformService
-	 * @return void
-	 */
-	public function injectFlexFormService(Tx_Flux_Service_FlexForm $flexFormService) {
-		$this->flexFormService = $flexFormService;
 	}
 
 	/**
@@ -70,7 +57,6 @@ class Tx_Fluidcontent_Controller_ContentController extends Tx_Extbase_MVC_Contro
 		if (isset($cObj->data['tx_fed_fcefile']) === FALSE) {
 			return 'Fluid Content type not selected';
 		}
-		$this->flexFormService->setContentObjectData($cObj->data);
 		list ($extensionName, $filename) = explode(':', $cObj->data['tx_fed_fcefile']);
 		if (empty($extensionName) || empty($filename)) {
 			return 'Invalid Fluid Content type definition! The specified type is an empty value.';
@@ -95,12 +81,12 @@ class Tx_Fluidcontent_Controller_ContentController extends Tx_Extbase_MVC_Contro
 		$view->setPartialRootPath($paths['partialRootPath']);
 		$view->setTemplatePathAndFilename($absolutePath);
 		$view->setControllerContext($this->controllerContext);
-		$config = $view->getStoredVariable('Tx_Flux_ViewHelpers_FlexformViewHelper', 'storage', 'Configuration');
-		$variables = $this->flexFormService->getAllAndTransform($config['fields']);
+		$config = $this->configurationService->getStoredVariable($this->view->getTemplatePathAndFilename(), 'storage', 'Configuration', $paths, $extensionName);
+		$variables = $this->configurationService->convertFlexFormContentToArray($cObj->data['pi_flexform'], $config);
 		$variables['page'] = $GLOBALS['TSFE']->page;
 		$variables['record'] = $cObj->data;
 		$variables['contentObject'] = $cObj;
-		$variables['settings'] = $this->settings;
+		$variables['settings'] = $variables;
 		$view->assignMultiple($variables);
 		return $view->render();
 	}
