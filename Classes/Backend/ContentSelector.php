@@ -31,31 +31,6 @@
 class Tx_Fluidcontent_Backend_ContentSelector {
 
 	/**
-	 * @var Tx_Extbase_Object_ObjectManager
-	 */
-	protected $objectManager;
-
-	/**
-	 *
-	 * @var Tx_Fluidcontent_Service_ConfigurationService
-	 */
-	protected $configurationService;
-
-	/**
-	 * @var Tx_Flux_Service_FlexForm
-	 */
-	protected $flexform;
-
-	/**
-	 * CONSTRUCTOR
-	 */
-	public function __construct() {
-		$this->objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
-		$this->configurationService = $this->objectManager->get('Tx_Fluidcontent_Service_ConfigurationService');
-		$this->flexform = $this->objectManager->get('Tx_Flux_Service_FlexForm');
-	}
-
-	/**
 	 * Render a Flexible Content Element type selection field
 	 *
 	 * @param array $parameters

@@ -2,14 +2,14 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2013 Claus Due <claus@wildside.dk>, Wildside A/S
  *
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
  *  free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
+ *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
  *  The GNU General Public License can be found at
@@ -24,13 +24,23 @@
  ***************************************************************/
 
 /**
- * Flexible Content Element Plugin Rendering Controller
+ * Abstract Content Controller
  *
  * @package Fluidcontent
  * @subpackage Controller
  * @route off
  */
-class Tx_Fluidcontent_Controller_ContentController extends Tx_Fluidcontent_Controller_AbstractContentController {
+abstract class Tx_Fluidcontent_Controller_AbstractContentController extends Tx_Flux_Controller_AbstractFluxController implements Tx_Fluidcontent_Controller_ContentControllerInterface {
+
+	/**
+	 * @var string
+	 */
+	protected $fallbackExtensionKey = 'fluidcontent';
+
+	/**
+	 * @var Tx_Fluidcontent_Service_ConfigurationService
+	 */
+	protected $configurationService;
 
 	/**
 	 * @param Tx_Fluidcontent_Service_ConfigurationService $configurationService
@@ -41,24 +51,15 @@ class Tx_Fluidcontent_Controller_ContentController extends Tx_Fluidcontent_Contr
 	}
 
 	/**
-	 * Show template as defined in flexform
-	 * @return string
-	 * @route off
+	 * @param Tx_Extbase_MVC_View_ViewInterface $view
+	 * @return void
 	 */
-	public function renderAction() {
-		$cObj = $this->configurationManager->getContentObject();
-		if (isset($cObj->data['tx_fed_fcefile']) === FALSE) {
-			return 'Fluid Content type not selected';
-		}
-		$variables['page'] = $GLOBALS['TSFE']->page;
-		$variables['record'] = $cObj->data;
-		$variables['contentObject'] = $cObj;
-		$potentialControllerClassName = $this->configurationService->resolveFluxControllerClassName($action, 'Page', $failHardClass, $failHardAction);
-		if (NULL !== $potentialControllerClassName) {
-			$this->request->setControllerObjectName($potentialControllerClassName);
-			$this->forward('render');
-		}
-		$this->view->assignMultiple($variables);
+	public function initializeView(Tx_Extbase_MVC_View_ViewInterface $view) {
+		parent::initializeView($view);
+		$view->assign('page', $GLOBALS['TSFE']->page);
+		$view->assign('user', $GLOBALS['TSFE']->fe_user->user);
+		$view->assign('cookies', $_COOKIE);
+		$view->assign('session', $_SESSION);
 	}
 
 }

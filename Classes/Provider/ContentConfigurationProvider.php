@@ -115,35 +115,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		$extensionKey = (TRUE === isset($paths['extensionKey']) ? $paths['extensionKey'] : $this->getExtensionKey($row));
 		$extensionName = t3lib_div::underscoredToUpperCamelCase($extensionKey);
 		$templatePathAndFilename = $paths['templateRootPath'] . $filename;
-		$view = $this->objectManager->get('Tx_Flux_MVC_View_ExposedStandaloneView');
-		$view->setTemplatePathAndFilename($templatePathAndFilename);
-		$this->flexFormService->setContentObjectData($row);
-		$flexform = $this->flexFormService->getAll();
-		$view->assignMultiple($flexform);
-		$view->assignMultiple($this->flexFormService->setContentObjectData($row)->getAll());
-		try {
-			$stored = $view->getStoredVariable('Tx_Flux_ViewHelpers_FlexformViewHelper', 'storage', 'Configuration', $paths, $extensionName);
-			if (NULL === $stored) {
-				return NULL;
-			}
-			$stored['sheets'] = array();
-			foreach ($stored['fields'] as $field) {
-				$groupKey = $field['sheets']['name'];
-				$groupLabel = $field['sheets']['label'];
-				if (is_array($stored['sheets'][$groupKey]) === FALSE) {
-					$stored['sheets'][$groupKey] = array(
-						'name' => $groupKey,
-						'label' => $groupLabel,
-						'fields' => array()
-					);
-				}
-				array_push($stored['sheets'][$groupKey]['fields'], $field);
-			}
-			return $stored;
-		} catch (Exception $e) {
-			$this->debugService->debug($e);
-			return NULL;
-		}
+		return $this->configurationService->getStoredVariable($templatePathAndFilename, 'storage', 'Configuration', $paths, $extensionName);
 	}
 
 	/**
@@ -155,9 +127,6 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		$extensionName = array_shift(explode(':', $templatePathAndFilename));
 		$paths = $this->configurationService->getContentConfiguration($extensionName);
 		$paths = Tx_Flux_Utility_Path::translatePath($paths);
-		if ($this->configurationService->checkDependenciesForConfiguration($paths) === FALSE) {
-			return NULL;
-		}
 		return $paths;
 	}
 
