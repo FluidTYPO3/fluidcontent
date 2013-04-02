@@ -30,35 +30,6 @@
  * @subpackage Controller
  * @route off
  */
-class Tx_Fluidcontent_Controller_ContentController extends Tx_Fluidcontent_Controller_AbstractContentController {
-
-	/**
-	 * @param Tx_Fluidcontent_Service_ConfigurationService $configurationService
-	 * @return void
-	 */
-	public function injectConfigurationService(Tx_Fluidcontent_Service_ConfigurationService $configurationService) {
-		$this->configurationService = $configurationService;
-	}
-
-	/**
-	 * Show template as defined in flexform
-	 * @return string
-	 * @route off
-	 */
-	public function renderAction() {
-		$cObj = $this->configurationManager->getContentObject();
-		if (isset($cObj->data['tx_fed_fcefile']) === FALSE) {
-			return 'Fluid Content type not selected';
-		}
-		$variables['page'] = $GLOBALS['TSFE']->page;
-		$variables['record'] = $cObj->data;
-		$variables['contentObject'] = $cObj;
-		$potentialControllerClassName = $this->configurationService->resolveFluxControllerClassName($action, 'Page', $failHardClass, $failHardAction);
-		if (NULL !== $potentialControllerClassName) {
-			$this->request->setControllerObjectName($potentialControllerClassName);
-			$this->forward('render');
-		}
-		$this->view->assignMultiple($variables);
-	}
+class Tx_Fluidcontent_Controller_ContentController extends Tx_Fluidcontent_Controller_AbstractContentController implements Tx_Fluidcontent_Controller_ContentControllerInterface {
 
 }

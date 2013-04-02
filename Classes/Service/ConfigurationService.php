@@ -36,6 +36,11 @@
 class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxService implements t3lib_Singleton {
 
 	/**
+	 * @var array
+	 */
+	private static $cache = array();
+
+	/**
 	 * @var string
 	 */
 	protected $defaultIcon;
@@ -48,14 +53,54 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	}
 
 	/**
+	 * @param string $reference
+	 * @param string $controllerObjectShortName
+	 * @param boolean $failHardClass
+	 * @param boolean $failHardAction
+	 * @return string|NULL
+	 */
+	public function resolveFluxControllerClassName($reference, $controllerObjectShortName, $failHardClass = FALSE, $failHardAction = FALSE) {
+		list ($extensionKey, $action) = explode(':', $reference);
+		$action = basename($action, '.html');
+		$action{0} = strtolower($action{0});
+		return $this->resolveFluxControllerClassNameByExtensionKeyAndAction($extensionKey, $action, $controllerObjectShortName, $failHardClass, $failHardAction);
+	}
+
+	/**
 	 * Get definitions of paths for FCEs defined in TypoScript
 	 *
-	 * @param string $extensionName Optional extension name to get only that extension
+	 * @param string $extensionName
 	 * @return array
 	 * @api
 	 */
 	public function getContentConfiguration($extensionName = NULL) {
-		return $this->getTypoScriptSubConfiguration($extensionName, 'fce', array('label', 'dependencies'));
+		$cacheKey = NULL === $extensionName ? 0 : $extensionName;
+		$cacheKey = 'content_' . $cacheKey;
+		if (TRUE === isset(self::$cache[$cacheKey])) {
+			return self::$cache[$cacheKey];
+		}
+		$newLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'collections', array(), 'fluidcontent');
+		$oldLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'fce', array(), 'fed');
+		$merged = t3lib_div::array_merge_recursive_overrule($oldLocation, $newLocation);
+		$registeredExtensionKeys = Tx_Flux_Core::getRegisteredProviderExtensionKeys('Content');
+		if (NULL === $extensionName) {
+			foreach ($registeredExtensionKeys as $registeredExtensionKey) {
+				$nativeViewLocation = $this->getContentConfiguration($registeredExtensionKey);
+				if (FALSE === isset($nativeViewLocation['extensionKey'])) {
+					$nativeViewLocation['extensionKey'] = $registeredExtensionKey;
+				}
+				self::$cache[$registeredExtensionKey] = $nativeViewLocation;
+				$merged[$registeredExtensionKey] = $nativeViewLocation;
+			}
+		} else {
+			$nativeViewLocation = $this->getViewConfigurationForExtensionName($extensionName);
+			if (FALSE === isset($merged['extensionKey'])) {
+				$nativeViewLocation['extensionKey'] = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
+			}
+			$merged = t3lib_div::array_merge_recursive_overrule($merged, $nativeViewLocation);
+		}
+		self::$cache[$cacheKey] = $merged;
+		return $merged;
 	}
 
 
@@ -84,7 +129,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		$rootLine = $sys_page->getRootLine($pageUid);
 		$template->runThroughTemplates($rootLine);
 		$template->generateConfig();
-		$allTemplatePaths = $template->setup['plugin.']['tx_fed.']['fce.'];
+		$allTemplatePaths = $this->getContentConfiguration();
 		if (is_array($allTemplatePaths) === FALSE) {
 			return FALSE;
 		}
@@ -114,11 +159,17 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			);
 			$paths = Tx_Flux_Utility_Path::translatePath($paths);
 			$templateRootPath = $paths['templateRootPath'];
+			if ('/' === substr($templateRootPath, -1)) {
+				$templateRootPath = substr($templateRootPath, 0, -1);
+			}
+			if (TRUE === file_exists($templateRootPath . '/Content')) {
+				$templateRootPath = $templateRootPath . '/Content';
+			}
 			$files = array();
 			$files = t3lib_div::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
 			if (count($files) > 0) {
 				foreach ($files as $templateFilename) {
-					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
+					$fileRelPath = substr($templateFilename, strlen($templateRootPath) + 1);
 					$contentConfiguration = $this->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths, $extensionName);
 					if (FALSE === is_array($contentConfiguration)) {
 						$this->sendDisabledContentWarning($templateFilename);

@@ -58,6 +58,8 @@ abstract class Tx_Fluidcontent_Controller_AbstractContentController extends Tx_F
 		parent::initializeView($view);
 		$view->assign('page', $GLOBALS['TSFE']->page);
 		$view->assign('user', $GLOBALS['TSFE']->fe_user->user);
+		$view->assign('record', $this->getRecord());
+		$view->assign('contentObject', $this->configurationManager->getContentObject());
 		$view->assign('cookies', $_COOKIE);
 		$view->assign('session', $_SESSION);
 	}
