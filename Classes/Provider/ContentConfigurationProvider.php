@@ -142,4 +142,24 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		$this->configurationService->writeCachedConfigurationIfMissing();
 	}
 
+	/**
+	 * @param array $row
+	 * @return string
+	 */
+	public function getExtensionKey(array $row) {
+		$action = $row['tx_fed_fcefile'];
+		if (FALSE === strpos($action, ':')) {
+			$paths = $this->getTemplatePaths($row);
+			if (TRUE === isset($paths['extensionKey'])) {
+				return $paths['extensionKey'];
+			}
+		}
+		list ($extensionName, $filename) = explode(':', $action);
+		if (FALSE === empty($extensionName)) {
+			$extensionKey = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
+			return $extensionKey;
+		}
+		return parent::getExtensionKey($row);
+	}
+
 }
