@@ -50,7 +50,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 	/**
 	 * @var string
 	 */
-	protected $contentObjectType = 'fed_fce';
+	protected $contentObjectType = 'fluidcontent_content';
 
 	/**
 	 * @var string

@@ -248,7 +248,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 				title = %s
 				description = %s
 				tt_content_defValues {
-					CType = fed_fce
+					CType = fluidcontent_content
 					tx_fed_fcefile = %s
 				}
 			}
