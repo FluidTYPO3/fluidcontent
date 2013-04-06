@@ -22,7 +22,7 @@ support in 4.x branches through the Grid Elements extension - key `gridelements`
 
 **Fluid Content** is a fast, dynamic and extremely flexible way to create content elements. Not only can you use Fluid, you can
 also create dynamic configuration options for each content element using Flux - in the exact same way as done in the Fluid Pages
-extension; see https://github.com/NamelessCoder/fluidpages.
+extension; see https://github.com/FluidTYPO3/fluidpages.
 
 ## How does it work?
 
@@ -119,7 +119,7 @@ Some facts about the above sample template:
 
 * The `flux` namespace is used for configuration, the `widget` namespace for the AJAX loading Widget.
 * A `<div>` wraps the entire template, allowing tag autocompletion and attribute validation (by associating XSD schemas to each
-  namespace - see https://github.com/NamelessCoder/schemaker for more information about this feature).
+  namespace - see https://github.com/FluidTYPO3/schemaker for more information about this feature).
 * The `Content.html`  Layout file is used. It is allowed to render any section **except for the `Configuration` section**
 * The `Configuration` section contains:
 	* A `<flux:flexform>` node with the minimum allowed configuration: an ID unique to this file (among files in this same
@@ -133,17 +133,17 @@ Some facts about the above sample template:
   Previews for content elements in the page backend module.
 * The `Main` section which is rendered from the `Content` Layout and contains the actual frontend display of the content element.
   This particular element contains only a condition which can disable the AJAX loading and the Widget which performs the AJAX
-  loading (Widget provided by EXT:fluidwidget - see https://github.com/NamelessCoder/fluidwidget).
+  loading (Widget provided by EXT:fluidwidget - see https://github.com/FluidTYPO3/fluidwidget).
 
 ## References
 
 Other extensions which are either dependencies of or closely related to this extension:
 
-* https://github.com/NamelessCoder/flux is a dependency and is used to configure how the content template variable are defined.
-* https://github.com/NamelessCoder/vhs is a highly suggested companion for Fluid Content templates, providing useful ViewHelpers.
-* https://github.com/NamelessCoder/fluidpages is a recommendation for a site built with Fluid, but is not TemplaVoila compatible.
-* https://github.com/NamelessCoder/fluidcontent_fed is a collection of general Fluid Content Elements which use FED ViewHelpers
-* https://github.com/NamelessCoder/fluidcontent_bootstrap is a collection of Fluid Content Elements for Twitter Bootstrap which
+* https://github.com/FluidTYPO3/flux is a dependency and is used to configure how the content template variable are defined.
+* https://github.com/FluidTYPO3/vhs is a highly suggested companion for Fluid Content templates, providing useful ViewHelpers.
+* https://github.com/FluidTYPO3/fluidpages is a recommendation for a site built with Fluid, but is not TemplaVoila compatible.
+* https://github.com/FluidTYPO3/fluidcontent_fed is a collection of general Fluid Content Elements which use FED ViewHelpers
+* https://github.com/FluidTYPO3/fluidcontent_bootstrap is a collection of Fluid Content Elements for Twitter Bootstrap which
   use VHS ViewHelpers
-* https://github.com/NamelessCoder/fluidpages_bootstrap is a collection of Fluid Page templates written for Bootstrap using VHS
+* https://github.com/FluidTYPO3/fluidpages_bootstrap is a collection of Fluid Page templates written for Bootstrap using VHS
   ViewHelpers
