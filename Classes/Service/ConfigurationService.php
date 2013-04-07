@@ -316,7 +316,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 * @return void
 	 */
 	protected function sendDisabledContentWarning($templatePathAndFilename) {
-		$this->debugService->message('Disabled Fluid Content Element: ' . $templatePathAndFilename , t3lib_div::SYSLOG_SEVERITY_NOTICE);
+		$this->configurationService->message('Disabled Fluid Content Element: ' . $templatePathAndFilename , t3lib_div::SYSLOG_SEVERITY_NOTICE);
 	}
 
 }
