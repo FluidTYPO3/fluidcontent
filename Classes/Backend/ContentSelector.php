@@ -43,7 +43,9 @@ class Tx_Fluidcontent_Backend_ContentSelector {
 		}
 		$pageTypoScript = file_get_contents(PATH_site . 'typo3temp/.FED_CONTENT');
 		$tsParser = new t3lib_TSparser();
-		$tsParser->parse($pageTypoScript);
+		$conditions = new t3lib_matchCondition_backend();
+		$conditions->getPageId(t3lib_div::_GET('id'));
+		$tsParser->parse($pageTypoScript, $conditions);
 		$setup = $tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'];
 		$setup = t3lib_div::removeDotsFromTS($setup);
 		$name = $parameters['itemFormElName'];

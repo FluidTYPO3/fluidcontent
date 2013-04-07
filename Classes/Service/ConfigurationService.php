@@ -103,7 +103,6 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		return $merged;
 	}
 
-
 	/**
 	 * @return void
 	 */
@@ -111,31 +110,71 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		if (TRUE === file_exists(FLUIDCONTENT_TEMPFILE)) {
 			return;
 		}
-		$pageUid = intval(t3lib_div::_GP('id'));
-		if ($pageUid < 1) {
-			$firstPageWithRootTemplate = array_shift($GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid', 'sys_template t', 't.root = 1 AND deleted = 0 AND hidden = 0  AND starttime<=' . $GLOBALS['SIM_ACCESS_TIME'] . ' AND (endtime=0 OR endtime>' . $GLOBALS['SIM_ACCESS_TIME'] . ')'));
-			if (TRUE === is_array($firstPageWithRootTemplate)) {
-				$pageUid = $firstPageWithRootTemplate['pid'];
-			} else {
-				return FALSE;
+		$templates = $this->getAllRootTypoScriptTemplates();
+		$paths = $this->getPathConfigurationsFromRootTypoScriptTemplates($templates);
+		$pageTsConfig = '';
+		foreach ($paths as $pageUid => $collection) {
+			if (FALSE === $collection) {
+				continue;
 			}
+			$wizardTabs = $this->buildAllWizardTabGroups($collection);
+			$collectionPageTsConfig = $this->buildAllWizardTabsPageTsConfig($wizardTabs);
+			$pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
+			$pageTsConfig .= $collectionPageTsConfig . LF;
+			$pageTsConfig .= '[GLOBAL]' . LF;
 		}
-		/** @var t3lib_tsparser_ext $template */
-		$template = t3lib_div::makeInstance('t3lib_tsparser_ext');
-		$template->tt_track = 0;
-		$template->init();
-		/** @var t3lib_pageSelect $sys_page */
-		$sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
-		$rootLine = $sys_page->getRootLine($pageUid);
-		$template->runThroughTemplates($rootLine);
-		$template->generateConfig();
-		$allTemplatePaths = $this->getContentConfiguration();
-		if (is_array($allTemplatePaths) === FALSE) {
-			return FALSE;
-		}
-		$wizardTabs = $this->buildAllWizardTabGroups($allTemplatePaths);
-		$pageTsConfig = $this->buildAllWizardTabsPageTsConfig($wizardTabs);
 		t3lib_div::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
+		return;
+	}
+
+	/**
+	 * Gets a collection of path configurations for content elements
+	 * based on each root TypoScript template in the provided array
+	 * of templates. Returns an array of paths indexed by the root
+	 * page UID.
+	 *
+	 * @param array $templates
+	 * @return array
+	 */
+	protected function getPathConfigurationsFromRootTypoScriptTemplates($templates) {
+		$allTemplatePaths = array();
+		$registeredExtensionKeys = Tx_Flux_Core::getRegisteredProviderExtensionKeys('Content');
+		foreach ($templates as $templateRecord) {
+			$pageUid = $templateRecord['pid'];
+			/** @var t3lib_tsparser_ext $template */
+			$template = t3lib_div::makeInstance('t3lib_tsparser_ext');
+			$template->tt_track = 0;
+			$template->init();
+			/** @var t3lib_pageSelect $sys_page */
+			$sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
+			$rootLine = $sys_page->getRootLine($pageUid);
+			$template->runThroughTemplates($rootLine);
+			$template->generateConfig();
+			$oldTemplatePathLocation = (array) $template->setup['plugin.']['tx_fed.']['fce.'];
+			$newTemplatePathLocation = (array) $template->setup['plugin.']['tx_fluidcontent.']['collections.'];
+			$registeredPathCollections = array();
+			foreach ($registeredExtensionKeys as $registeredExtensionKey) {
+				$nativeViewLocation = $this->getContentConfiguration($registeredExtensionKey);
+				if (FALSE === isset($nativeViewLocation['extensionKey'])) {
+					$nativeViewLocation['extensionKey'] = $registeredExtensionKey;
+				}
+				$registeredPathCollections[$registeredExtensionKey] = $nativeViewLocation;
+			}
+			$merged = t3lib_div::array_merge_recursive_overrule($oldTemplatePathLocation, $newTemplatePathLocation);
+			$merged = t3lib_div::removeDotsFromTS($merged);
+			$merged = t3lib_div::array_merge($merged, $registeredPathCollections);
+			$allTemplatePaths[$pageUid] = $merged;
+		}
+		return $allTemplatePaths;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getAllRootTypoScriptTemplates() {
+		$condition = 'deleted = 0 AND hidden = 0  AND starttime<=' . $GLOBALS['SIM_ACCESS_TIME'] . ' AND (endtime=0 OR endtime>' . $GLOBALS['SIM_ACCESS_TIME'] . ')';
+		$rootTypoScriptTemplates = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid', 'sys_template', $condition);
+		return $rootTypoScriptTemplates;
 	}
 
 	/**
