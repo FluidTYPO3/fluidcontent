@@ -173,6 +173,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 */
 	protected function getAllRootTypoScriptTemplates() {
 		$condition = 'deleted = 0 AND hidden = 0  AND starttime<=' . $GLOBALS['SIM_ACCESS_TIME'] . ' AND (endtime=0 OR endtime>' . $GLOBALS['SIM_ACCESS_TIME'] . ')';
+		$condition .= ' AND pid IN (SELECT uid FROM pages WHERE deleted = 0)'; // Make sure template is not on deleted page
 		$rootTypoScriptTemplates = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid', 'sys_template', $condition);
 		return $rootTypoScriptTemplates;
 	}
