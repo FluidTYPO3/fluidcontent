@@ -1,5 +1,1 @@
 [GLOBAL]
-tt_content.fed_fce < tt_content.fluidcontent_content
-tt_content.fed_fce.10 = USER
-tt_content.fed_fce.10.userFunc = Tx_Fluidcontent_UserFunction_ContentFieldSuppressor->renderField
-tt_content.fed_fce.10.field = header

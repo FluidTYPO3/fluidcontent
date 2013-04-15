@@ -11,7 +11,7 @@ Tx_Flux_Core::registerConfigurationProvider('Tx_Fluidcontent_Provider_ContentCon
 
 t3lib_div::loadTCA('tt_content');
 t3lib_extMgm::addPlugin(array('Fluid Content', 'fluidcontent_content', t3lib_extMgm::extRelPath('fluidcontent') . 'ext_icon.gif'), 'CType');
-t3lib_extMgm::addStaticFile($_EXTKEY, 'Configuration/TypoScript', 'Fluid Content');
+//t3lib_extMgm::addStaticFile($_EXTKEY, 'Configuration/TypoScript', 'Fluid Content'); // Disabled temporarily: fluidcontent currently does not use TS configuration.
 t3lib_extMgm::addTCAcolumns('tt_content', array(
 	'tx_fed_fcefile' => array (
 		'exclude' => 1,
@@ -29,7 +29,7 @@ if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup']['removeTab']
 	$tab = '--div--;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.content_settings,';
 }
 
-$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['fed_fce'] = 'pi_flexform';
+$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['fluidcontent_content'] = 'pi_flexform';
 $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.general;general,
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.header;header,

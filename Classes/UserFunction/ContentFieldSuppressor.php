@@ -50,7 +50,7 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 		}
 		$field = $parameters['field'];
 		$record = array_pop($GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, "uid = '" . $uid . "'"));
-		if ('fed_fce' !== $record['CType']) {
+		if ('fluidcontent_content' !== $record['CType']) {
 			return;
 		}
 		list ($extensionName, $filename) = explode(':', $record['tx_fed_fcefile']);
