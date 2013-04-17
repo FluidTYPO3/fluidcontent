@@ -122,8 +122,10 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		$extensionKey = (TRUE === isset($paths['extensionKey']) ? $paths['extensionKey'] : $this->getExtensionKey($row));
 		$extensionName = t3lib_div::underscoredToUpperCamelCase($extensionKey);
 		$templatePathAndFilename = $this->getTemplatePathAndFilename($row);
-		$stored = $this->configurationService->getStoredVariable($templatePathAndFilename, 'storage', 'Configuration', $paths, $extensionName);
+		$flexFormVariables = $this->configurationService->convertFlexFormContentToArray($row['pi_flexform']);
+		$stored = $this->configurationService->getStoredVariable($templatePathAndFilename, 'storage', 'Configuration', $paths, $extensionName, $flexFormVariables);
 		$variables = $this->configurationService->convertFlexFormContentToArray($row['pi_flexform'], $stored);
+		$variables = t3lib_div::array_merge_recursive_overrule($flexFormVariables, $variables);
 		return $variables;
 	}
 
