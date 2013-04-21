@@ -146,7 +146,10 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 	 *
 	 * @return void
 	 */
-	public function clearCacheCommand() {
+	public function clearCacheCommand($command = array()) {
+		if (TRUE === isset($command['uid'])) {
+			return;
+		}
 		if (file_exists(FLUIDCONTENT_TEMPFILE) === TRUE) {
 			unlink(FLUIDCONTENT_TEMPFILE);
 		}
