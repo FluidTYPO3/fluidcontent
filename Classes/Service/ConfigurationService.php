@@ -53,20 +53,6 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	}
 
 	/**
-	 * @param string $reference
-	 * @param string $controllerObjectShortName
-	 * @param boolean $failHardClass
-	 * @param boolean $failHardAction
-	 * @return string|NULL
-	 */
-	public function resolveFluxControllerClassName($reference, $controllerObjectShortName, $failHardClass = FALSE, $failHardAction = FALSE) {
-		list ($extensionKey, $action) = explode(':', $reference);
-		$action = basename($action, '.html');
-		$action{0} = strtolower($action{0});
-		return $this->resolveFluxControllerClassNameByExtensionKeyAndAction($extensionKey, $action, $controllerObjectShortName, $failHardClass, $failHardAction);
-	}
-
-	/**
 	 * Get definitions of paths for FCEs defined in TypoScript
 	 *
 	 * @param string $extensionName
@@ -247,7 +233,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	protected function buildAllWizardTabsPageTsConfig($wizardTabs) {
 		$pageTsConfig = '';
 		foreach ($wizardTabs as $tab) {
-			foreach ($tab['elements'] as $id => $elementTsConfig) {
+			foreach ($tab['elements'] as $elementTsConfig) {
 				$pageTsConfig .= $elementTsConfig;
 			}
 		}

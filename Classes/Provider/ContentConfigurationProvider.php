@@ -92,7 +92,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		if (strpos($templatePathAndFilename, ':') === FALSE) {
 			return NULL;
 		}
-		list ($extensionName, $filename) = explode(':', $templatePathAndFilename);
+		list (, $filename) = explode(':', $templatePathAndFilename);
 		$paths = $this->getTemplatePaths($row);
 		if ($paths === NULL) {
 			return NULL;
@@ -113,12 +113,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 	 * @return array
 	 */
 	public function getTemplateVariables(array $row) {
-		$templatePathAndFilename = $row['tx_fed_fcefile'];
-		$filename = array_pop(explode(':', $templatePathAndFilename));
 		$paths = $this->getTemplatePaths($row);
-		if ($paths === NULL) {
-			return NULL;
-		}
 		$extensionKey = (TRUE === isset($paths['extensionKey']) ? $paths['extensionKey'] : $this->getExtensionKey($row));
 		$extensionName = t3lib_div::underscoredToUpperCamelCase($extensionKey);
 		$templatePathAndFilename = $this->getTemplatePathAndFilename($row);
@@ -144,6 +139,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 	/**
 	 * Perform various cleanup operations upon clearing cache
 	 *
+	 * @param array $command
 	 * @return void
 	 */
 	public function clearCacheCommand($command = array()) {
@@ -168,7 +164,7 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 				return $paths['extensionKey'];
 			}
 		}
-		list ($extensionName, $filename) = explode(':', $action);
+		list ($extensionName, ) = explode(':', $action);
 		if (FALSE === empty($extensionName)) {
 			$extensionKey = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
 			return $extensionKey;

@@ -38,12 +38,6 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 	 * @return string
 	 */
 	public function renderField($content, $parameters) {
-		/** @var $objectManager Tx_Extbase_Object_ObjectManager */
-		$objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
-		/** @var $flexformService Tx_Flux_Service_FluxService */
-		$flexformService = $objectManager->get('Tx_Flux_Service_FluxService');
-		/** @var $configurationService Tx_Fluidcontent_Service_ConfigurationService */
-		$configurationService = $objectManager->get('Tx_Fluidcontent_Service_ConfigurationService');
 		list ($table, $uid) = explode(':', $GLOBALS['TSFE']->currentRecord);
 		if ('tt_content' !== $table) {
 			return;
@@ -53,12 +47,18 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 		if ('fluidcontent_content' !== $record['CType']) {
 			return;
 		}
+		unset($content);
+		/** @var $objectManager Tx_Extbase_Object_ObjectManager */
+		$objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
+		/** @var $flexformService Tx_Flux_Service_FluxService */
+		$flexformService = $objectManager->get('Tx_Flux_Service_FluxService');
+		/** @var $configurationService Tx_Fluidcontent_Service_ConfigurationService */
+		$configurationService = $objectManager->get('Tx_Fluidcontent_Service_ConfigurationService');
 		list ($extensionName, $filename) = explode(':', $record['tx_fed_fcefile']);
 		$paths = $configurationService->getContentConfiguration($extensionName);
 		$templatePathAndFilename = $paths['templateRootPath'] . $filename;
 		$values = $flexformService->convertFlexFormContentToArray($record['pi_flexform']);
 		$config = $flexformService->getFlexFormConfigurationFromFile($templatePathAndFilename, $values, 'Configuration', $paths, $extensionName);
-		$values = $flexformService->convertFlexFormContentToArray($record['pi_flexform'], $config);
 		if (TRUE === in_array($field, $config['hidefields'])) {
 			return;
 		}
