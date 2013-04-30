@@ -65,8 +65,8 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		if (TRUE === isset(self::$cache[$cacheKey])) {
 			return self::$cache[$cacheKey];
 		}
-		$newLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'collections', array(), 'fluidcontent');
-		$oldLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'fce', array(), 'fed');
+		$newLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'collections', 'fluidcontent');
+		$oldLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'fce', 'fed');
 		$merged = t3lib_div::array_merge_recursive_overrule($oldLocation, $newLocation);
 		$registeredExtensionKeys = Tx_Flux_Core::getRegisteredProviderExtensionKeys('Content');
 		if (NULL === $extensionName) {
