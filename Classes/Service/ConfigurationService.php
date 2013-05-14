@@ -185,17 +185,17 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			);
 			$paths = Tx_Flux_Utility_Path::translatePath($paths);
 			$templateRootPath = $paths['templateRootPath'];
-			if ('/' === substr($templateRootPath, -1)) {
-				$templateRootPath = substr($templateRootPath, 0, -1);
+			if ('/' !== substr($templateRootPath, -1)) {
+				$templateRootPath .= '/';
 			}
-			if (TRUE === file_exists($templateRootPath . '/Content')) {
-				$templateRootPath = $templateRootPath . '/Content';
+			if (TRUE === file_exists($templateRootPath . '/Content/')) {
+				$templateRootPath = $templateRootPath . '/Content/';
 			}
 			$files = array();
 			$files = t3lib_div::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
 			if (count($files) > 0) {
 				foreach ($files as $templateFilename) {
-					$fileRelPath = substr($templateFilename, strlen($templateRootPath) + 1);
+					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
 					$contentConfiguration = $this->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths, $extensionName);
 					if (FALSE === is_array($contentConfiguration)) {
 						$this->sendDisabledContentWarning($templateFilename);
