@@ -47,11 +47,14 @@ class Tx_Fluidcontent_Backend_ContentSelector {
 		$conditions->getPageId(t3lib_div::_GET('id'));
 		$tsParser->parse($pageTypoScript, $conditions);
 		$setup = $tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'];
+		if (FALSE === is_array($tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'])) {
+			return Tx_Extbase_Utility_Localization::translate('pages.no_content_types', 'Fluidcontent');
+		}
 		$setup = t3lib_div::removeDotsFromTS($setup);
 		$name = $parameters['itemFormElName'];
 		$value = $parameters['itemFormElValue'];
 		$select = '<div><select name="' . htmlspecialchars($name) . '"  class="formField select" onchange="if (confirm(TBE_EDITOR.labels.onChangeAlert) && TBE_EDITOR.checkSubmit(-1)){ TBE_EDITOR.submitForm() };">' . LF;
-		$select .= '<option value="">' . $GLOBALS['LANG']->sL('LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:tt_content.tx_fed_fcefile', TRUE) . '</option>' . LF;
+		$select .= '<option value="">' . $GLOBALS['LANG']->sL('LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:tt_content.tx_fed_fcefile', TRUE) . '</option>' . LF;
 		foreach ($setup as $groupLabel => $configuration) {
 			$select .= '<optgroup label="' . htmlspecialchars($groupLabel) . '">' . LF;
 			foreach ($configuration['elements'] as $elementConfiguration) {

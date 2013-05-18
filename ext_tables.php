@@ -15,7 +15,7 @@ t3lib_extMgm::addPlugin(array('Fluid Content', 'fluidcontent_content', t3lib_ext
 t3lib_extMgm::addTCAcolumns('tt_content', array(
 	'tx_fed_fcefile' => array (
 		'exclude' => 1,
-		'label' => 'LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:tt_content.tx_fed_fcefile',
+		'label' => 'LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:tt_content.tx_fed_fcefile',
 		'config' => array (
 			'type' => 'user',
 			'userFunc' => 'Tx_Fluidcontent_Backend_ContentSelector->renderField',
@@ -26,7 +26,7 @@ t3lib_extMgm::addTCAcolumns('tt_content', array(
 if (FALSE === isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup']['removeTab']) || TRUE === (boolean) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup']['removeTab']) {
 	$tab = NULL;
 } else {
-	$tab = '--div--;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.content_settings,';
+	$tab = '--div--;LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:pages.tab.content_settings,';
 }
 
 $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['fluidcontent_content'] = 'pi_flexform';
@@ -34,8 +34,8 @@ $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.general;general,
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.header;header,
 	' . $tab . '
-	tx_fed_fcefile;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.element_type,
-	pi_flexform;LLL:EXT:fluidcontent/Resources/Private/Language/locallang_db.xml:pages.tab.configuration,
+	tx_fed_fcefile;LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:pages.tab.element_type,
+	pi_flexform;LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:pages.tab.configuration,
 	--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.appearance,
 	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.frames;frames,
 	--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,
