@@ -105,6 +105,20 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 			$templateRootPath = $templateRootPath . '/Content';
 		}
 		$templatePathAndFilename = $templateRootPath . '/' . $filename;
+		if (TRUE === isset($paths['overlays']) && TRUE === is_array($paths['overlays'])) {
+			foreach ($paths['overlays'] as $possibleOverlayPaths) {
+				if (TRUE === isset($possibleOverlayPaths['templateRootPath'])) {
+					$overlayTemplateRootPath = $possibleOverlayPaths['templateRootPath'];
+					$overlayTemplateRootPath = rtrim($overlayTemplateRootPath, '/');
+					$possibleOverlayFile = t3lib_div::getFileAbsFileName($overlayTemplateRootPath . '/Content/' . $filename);
+					if (TRUE === file_exists($possibleOverlayFile)) {
+						$templatePathAndFilename = $possibleOverlayFile;
+						break;
+					}
+				}
+			}
+		}
+		$templatePathAndFilename = t3lib_div::getFileAbsFileName($templatePathAndFilename);
 		return $templatePathAndFilename;
 	}
 
