@@ -80,7 +80,9 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			}
 		} else {
 			$nativeViewLocation = $this->getViewConfigurationForExtensionName($extensionName);
-			$merged = t3lib_div::array_merge_recursive_overrule($nativeViewLocation, $merged);
+			if (TRUE === is_array($nativeViewLocation)) {
+				$merged = t3lib_div::array_merge_recursive_overrule($nativeViewLocation, $merged);
+			}
 			if (FALSE === isset($merged['extensionKey'])) {
 				$merged['extensionKey'] = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
 			}
