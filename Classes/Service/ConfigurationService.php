@@ -190,8 +190,8 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			if ('/' !== substr($templateRootPath, -1)) {
 				$templateRootPath .= '/';
 			}
-			if (TRUE === file_exists($templateRootPath . '/Content/')) {
-				$templateRootPath = $templateRootPath . '/Content/';
+			if (TRUE === file_exists($templateRootPath . 'Content/')) {
+				$templateRootPath = $templateRootPath . 'Content/';
 			}
 			$files = array();
 			$files = t3lib_div::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
