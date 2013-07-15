@@ -88,9 +88,16 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 	 * @return string
 	 */
 	public function getTemplatePathAndFilename(array $row) {
-		$templatePathAndFilename = $row['tx_fed_fcefile'];
-		if (strpos($templatePathAndFilename, ':') === FALSE) {
-			return NULL;
+		if (FALSE === empty($this->templatePathAndFilename)) {
+			$templatePathAndFilename = t3lib_div::getFileAbsFileName($this->templatePathAndFilename);
+			if (TRUE === file_exists($templatePathAndFilename)) {
+				return $templatePathAndFilename;
+			}
+		} else {
+			$templatePathAndFilename = $row['tx_fed_fcefile'];
+			if (strpos($templatePathAndFilename, ':') === FALSE) {
+				return NULL;
+			}
 		}
 		list (, $filename) = explode(':', $templatePathAndFilename);
 		$paths = $this->getTemplatePaths($row);
