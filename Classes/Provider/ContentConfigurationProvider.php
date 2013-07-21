@@ -88,9 +88,16 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 	 * @return string
 	 */
 	public function getTemplatePathAndFilename(array $row) {
-		$templatePathAndFilename = $row['tx_fed_fcefile'];
-		if (strpos($templatePathAndFilename, ':') === FALSE) {
-			return NULL;
+		if (FALSE === empty($this->templatePathAndFilename)) {
+			$templatePathAndFilename = t3lib_div::getFileAbsFileName($this->templatePathAndFilename);
+			if (TRUE === file_exists($templatePathAndFilename)) {
+				return $templatePathAndFilename;
+			}
+		} else {
+			$templatePathAndFilename = $row['tx_fed_fcefile'];
+			if (strpos($templatePathAndFilename, ':') === FALSE) {
+				return NULL;
+			}
 		}
 		list (, $filename) = explode(':', $templatePathAndFilename);
 		$paths = $this->getTemplatePaths($row);
@@ -120,22 +127,6 @@ class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Prov
 		}
 		$templatePathAndFilename = t3lib_div::getFileAbsFileName($templatePathAndFilename);
 		return $templatePathAndFilename;
-	}
-
-	/**
-	 * @param array $row
-	 * @return array
-	 */
-	public function getTemplateVariables(array $row) {
-		$paths = $this->getTemplatePaths($row);
-		$extensionKey = (TRUE === isset($paths['extensionKey']) ? $paths['extensionKey'] : $this->getExtensionKey($row));
-		$extensionName = t3lib_div::underscoredToUpperCamelCase($extensionKey);
-		$templatePathAndFilename = $this->getTemplatePathAndFilename($row);
-		$flexFormVariables = $this->configurationService->convertFlexFormContentToArray($row['pi_flexform']);
-		$stored = $this->configurationService->getStoredVariable($templatePathAndFilename, 'storage', 'Configuration', $paths, $extensionName, $flexFormVariables);
-		$variables = $this->configurationService->convertFlexFormContentToArray($row['pi_flexform'], $stored);
-		$variables = t3lib_div::array_merge_recursive_overrule($flexFormVariables, $variables);
-		return $variables;
 	}
 
 	/**
