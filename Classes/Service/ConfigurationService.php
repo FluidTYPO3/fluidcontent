@@ -105,12 +105,18 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			if (FALSE === $collection) {
 				continue;
 			}
-			$wizardTabs = $this->buildAllWizardTabGroups($collection);
-			$collectionPageTsConfig = $this->buildAllWizardTabsPageTsConfig($wizardTabs);
-			$pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
-			$pageTsConfig .= $collectionPageTsConfig . LF;
-			$pageTsConfig .= '[GLOBAL]' . LF;
+			try {
+				$wizardTabs = $this->buildAllWizardTabGroups($collection);
+				$collectionPageTsConfig = $this->buildAllWizardTabsPageTsConfig($wizardTabs);
+				$pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
+				$pageTsConfig .= $collectionPageTsConfig . LF;
+				$pageTsConfig .= '[GLOBAL]' . LF;
+				$this->message('Built content setup for page ' . $pageUid, t3lib_div::SYSLOG_SEVERITY_INFO, 'Fluidcontent');
+			} catch (Exception $error) {
+				$this->debug($error);
+			}
 		}
+		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration', t3lib_div::SYSLOG_SEVERITY_INFO);
 		t3lib_div::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
 		return;
 	}
@@ -179,7 +185,6 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		foreach ($allTemplatePaths as $key => $templatePathSet) {
 			$key = trim($key, '.');
 			$extensionKey = TRUE === isset($templatePathSet['extensionKey']) ? $templatePathSet['extensionKey'] : $key;
-			$extensionName = t3lib_div::underscoredToUpperCamelCase($extensionKey);
 			$paths = array(
 				'templateRootPath' => TRUE === isset($templatePathSet['templateRootPath']) ? $templatePathSet['templateRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Templates/',
 				'layoutRootPath' => TRUE === isset($templatePathSet['layoutRootPath']) ? $templatePathSet['layoutRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Layouts/',
@@ -198,25 +203,24 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			if (count($files) > 0) {
 				foreach ($files as $templateFilename) {
 					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
-					$contentConfiguration = $this->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths, $extensionName);
-					if (FALSE === is_array($contentConfiguration)) {
+					$form = $this->getFormFromTemplateFile($templateFilename, 'Configuration', 'form', $paths, $extensionKey);
+					if (TRUE === empty($form)) {
 						$this->sendDisabledContentWarning($templateFilename);
 						continue;
 					}
-					if (0 === count($contentConfiguration)) {
+					if (FALSE === $form->getEnabled()) {
 						$this->sendDisabledContentWarning($templateFilename);
 						continue;
 					}
-					if ($contentConfiguration['enabled'] === 'FALSE') {
-						$this->sendDisabledContentWarning($templateFilename);
-						continue;
-					}
-					if (isset($contentConfiguration['wizardTab'])) {
-						$tabId = $this->sanitizeString($contentConfiguration['wizardTab']);
-						$wizardTabs[$tabId]['title'] = $contentConfiguration['wizardTab'];
+					$group = $form->getGroup();
+					if (FALSE === empty($group)) {
+						$tabId = $this->sanitizeString($group);
+						$wizardTabs[$tabId]['title'] = $group;
+					} else {
+						$tabId = 'Content';
 					}
 					$id = $key . '_' . preg_replace('/[\.\/]/', '_', $fileRelPath);
-					$elementTsConfig = $this->buildWizardTabItem($tabId, $id, $contentConfiguration, $key . ':' . $fileRelPath);
+					$elementTsConfig = $this->buildWizardTabItem($tabId, $id, $form, $key . ':' . $fileRelPath);
 					$wizardTabs[$tabId]['elements'][$id] = $elementTsConfig;
 					$wizardTabs[$tabId]['key'] = $extensionKey;
 				}
@@ -264,12 +268,13 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 *
 	 * @param string $tabId
 	 * @param string $id
-	 * @param array $contentConfiguration
+	 * @param Tx_Flux_Form $form
 	 * @param string $templateFileIdentity
 	 * @return string
 	 */
-	protected function buildWizardTabItem($tabId, $id, $contentConfiguration, $templateFileIdentity) {
-		$iconFileRelativePath = ($contentConfiguration['icon'] ? $contentConfiguration['icon'] : $this->defaultIcon);
+	protected function buildWizardTabItem($tabId, $id, $form, $templateFileIdentity) {
+		$icon = $form->getIcon();
+		$iconFileRelativePath = ($icon ? $icon : $this->defaultIcon);
 		return sprintf('
 			mod.wizards.newContentElement.wizardItems.%s.elements.%s {
 				icon = %s
@@ -284,8 +289,8 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			$tabId,
 			$id,
 			$iconFileRelativePath,
-			$contentConfiguration['label'],
-			$contentConfiguration['description'],
+			$form->getLabel(),
+			$form->getDescription(),
 			$templateFileIdentity
 		);
 	}
