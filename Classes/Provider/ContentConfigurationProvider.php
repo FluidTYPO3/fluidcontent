@@ -30,7 +30,7 @@
  * @package Fluidcontent
  * @subpackage Provider
  */
-class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Provider_AbstractContentObjectConfigurationProvider implements Tx_Flux_Provider_ContentObjectConfigurationProviderInterface {
+class Tx_Fluidcontent_Provider_ContentConfigurationProvider extends Tx_Flux_Provider_ContentProvider implements Tx_Flux_Provider_ProviderInterface {
 
 	/**
 	 * @var string
