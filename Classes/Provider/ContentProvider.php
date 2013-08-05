@@ -211,4 +211,18 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 		return $fileReference;
 	}
 
+	/**
+	 * Switchable priority: highest possible for records matching
+	 * this Provider's targeted CType - lowest possible for others.
+	 *
+	 * @param array $row
+	 * @return integer
+	 */
+	public function getPriority(array $row) {
+		if (TRUE === isset($row['CType']) && $this->contentObjectType === $row['CType']) {
+			return 100;
+		}
+		return 0;
+	}
+
 }
