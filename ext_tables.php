@@ -7,7 +7,7 @@ define('FLUIDCONTENT_TEMPFILE', t3lib_div::getFileAbsFileName('typo3temp/.FED_CO
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup'] = unserialize($_EXTCONF);
 
 Tx_Flux_Core::unregisterConfigurationProvider('Tx_Fed_Provider_Configuration_ContentObjectConfigurationProvider');
-Tx_Flux_Core::registerConfigurationProvider('Tx_Fluidcontent_Provider_ContentConfigurationProvider');
+Tx_Flux_Core::registerConfigurationProvider('Tx_Fluidcontent_Provider_ContentProvider');
 
 t3lib_div::loadTCA('tt_content');
 t3lib_extMgm::addPlugin(array('Fluid Content', 'fluidcontent_content', t3lib_extMgm::extRelPath('fluidcontent') . 'ext_icon.gif'), 'CType');
