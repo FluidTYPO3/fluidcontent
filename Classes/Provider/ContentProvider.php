@@ -95,15 +95,12 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 			}
 		} else {
 			$templatePathAndFilename = $row['tx_fed_fcefile'];
-			if (strpos($templatePathAndFilename, ':') === FALSE) {
+			if (FALSE === strpos($templatePathAndFilename, ':')) {
 				return NULL;
 			}
 		}
 		list (, $filename) = explode(':', $templatePathAndFilename);
 		$paths = $this->getTemplatePaths($row);
-		if ($paths === NULL) {
-			return NULL;
-		}
 		$templateRootPath = $paths['templateRootPath'];
 		if ('/' === substr($templateRootPath, -1)) {
 			$templateRootPath = substr($templateRootPath, 0, -1);
@@ -151,7 +148,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 		if (TRUE === isset($command['uid'])) {
 			return;
 		}
-		if (file_exists(FLUIDCONTENT_TEMPFILE) === TRUE) {
+		if (TRUE === file_exists(FLUIDCONTENT_TEMPFILE)) {
 			unlink(FLUIDCONTENT_TEMPFILE);
 		}
 		$this->configurationService->writeCachedConfigurationIfMissing();

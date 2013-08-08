@@ -33,11 +33,6 @@
 abstract class Tx_Fluidcontent_Controller_AbstractContentController extends Tx_Flux_Controller_AbstractFluxController implements Tx_Fluidcontent_Controller_ContentControllerInterface {
 
 	/**
-	 * @var string
-	 */
-	protected $fallbackExtensionKey = 'fluidcontent';
-
-	/**
 	 * @var Tx_Fluidcontent_Service_ConfigurationService
 	 */
 	protected $configurationService;

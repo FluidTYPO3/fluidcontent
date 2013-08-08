@@ -35,17 +35,17 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 	/**
 	 * @param string $content
 	 * @param array $parameters
-	 * @return string
+	 * @return NULL|string
 	 */
 	public function renderField($content, $parameters) {
 		list ($table, $uid) = explode(':', $GLOBALS['TSFE']->currentRecord);
 		if ('tt_content' !== $table) {
-			return;
+			return NULL;
 		}
 		$field = $parameters['field'];
 		$record = array_pop($GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, "uid = '" . $uid . "'"));
 		if ('fluidcontent_content' !== $record['CType']) {
-			return;
+			return NULL;
 		}
 		unset($content);
 		/** @var $objectManager Tx_Extbase_Object_ObjectManager */
@@ -60,7 +60,7 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 		$values = $flexformService->convertFlexFormContentToArray($record['pi_flexform']);
 		$config = $flexformService->getFlexFormConfigurationFromFile($templatePathAndFilename, $values, 'Configuration', $paths, $extensionName);
 		if (TRUE === in_array($field, $config['hidefields'])) {
-			return;
+			return NULL;
 		}
 		switch ($field) {
 			case 'header': return $this->renderTitle($record);
