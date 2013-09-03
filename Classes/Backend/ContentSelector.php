@@ -44,7 +44,12 @@ class Tx_Fluidcontent_Backend_ContentSelector {
 		$pageTypoScript = file_get_contents(PATH_site . 'typo3temp/.FED_CONTENT');
 		$tsParser = new t3lib_TSparser();
 		$conditions = new t3lib_matchCondition_backend();
-		$conditions->getPageId(t3lib_div::_GET('id'));
+		$pageUid = t3lib_div::_GET('id');
+		$pageUid = intval($pageUid);
+		if (0 === $pageUid) {
+		    $pageUid = intval($parameters['row']['pid']);
+		}
+		$conditions->setPageId($pageUid);
 		$tsParser->parse($pageTypoScript, $conditions);
 		$setup = $tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'];
 		if (FALSE === is_array($tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'])) {
