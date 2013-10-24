@@ -92,7 +92,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	}
 
 	/**
-	 * @return void
+	 * @return NULL
 	 */
 	public function writeCachedConfigurationIfMissing() {
 		if (TRUE === file_exists(FLUIDCONTENT_TEMPFILE)) {
@@ -118,7 +118,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		}
 		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration', t3lib_div::SYSLOG_SEVERITY_INFO);
 		t3lib_div::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
-		return;
+		return NULL;
 	}
 
 	/**
