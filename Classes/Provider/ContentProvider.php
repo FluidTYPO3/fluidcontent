@@ -131,11 +131,13 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 	 * @return array
 	 */
 	public function getTemplatePaths(array $row) {
-		$templatePathAndFilename = $row['tx_fed_fcefile'];
-		$extensionName = array_shift(explode(':', $templatePathAndFilename));
+		$extensionName = $this->getExtensionKey($row);
 		$paths = $this->configurationService->getContentConfiguration($extensionName);
-		$paths = Tx_Flux_Utility_Path::translatePath($paths);
-		return $paths;
+		if (TRUE === is_array($paths) && FALSE === empty($paths)) {
+			return $paths;
+		}
+
+		return parent::getTemplatePaths($row);
 	}
 
 	/**
@@ -160,13 +162,9 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 	 */
 	public function getExtensionKey(array $row) {
 		$action = $row['tx_fed_fcefile'];
-		if (FALSE === strpos($action, ':')) {
-			$paths = $this->getTemplatePaths($row);
-			if (TRUE === isset($paths['extensionKey'])) {
-				return $paths['extensionKey'];
-			}
+		if (FALSE !== strpos($action, ':')) {
+			$extensionName = array_shift(explode(':', $action));
 		}
-		list ($extensionName, ) = explode(':', $action);
 		if (FALSE === empty($extensionName)) {
 			$extensionKey = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
 			return $extensionKey;
