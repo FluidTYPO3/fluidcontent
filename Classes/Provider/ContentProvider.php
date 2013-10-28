@@ -134,6 +134,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 		$extensionName = $this->getExtensionKey($row);
 		$paths = $this->configurationService->getContentConfiguration($extensionName);
 		if (TRUE === is_array($paths) && FALSE === empty($paths)) {
+			$paths = Tx_Flux_Utility_Path::translatePath($paths);
 			return $paths;
 		}
 
