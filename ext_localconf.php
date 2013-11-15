@@ -3,7 +3,7 @@ if (!defined ('TYPO3_MODE')) {
 	die ('Access denied.');
 }
 
-Tx_Extbase_Utility_Extension::configurePlugin(
+\TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
 	$_EXTKEY,
 	'Content',
 	array(
@@ -11,7 +11,7 @@ Tx_Extbase_Utility_Extension::configurePlugin(
 	),
 	array(
 	),
-	Tx_Extbase_Utility_Extension::PLUGIN_TYPE_CONTENT_ELEMENT
+	\TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
 );
 
 Tx_Flux_Core::registerConfigurationProvider('Tx_Fluidcontent_Provider_ContentProvider');

@@ -3,16 +3,16 @@ if (!defined ('TYPO3_MODE')) {
 	die ('Access denied.');
 }
 
-define('FLUIDCONTENT_TEMPFILE', t3lib_div::getFileAbsFileName('typo3temp/.FED_CONTENT'));
+define('FLUIDCONTENT_TEMPFILE', \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName('typo3temp/.FED_CONTENT'));
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup'] = unserialize($_EXTCONF);
 
 Tx_Flux_Core::unregisterConfigurationProvider('Tx_Fed_Provider_Configuration_ContentObjectConfigurationProvider');
 Tx_Flux_Core::registerConfigurationProvider('Tx_Fluidcontent_Provider_ContentProvider');
 
-t3lib_div::loadTCA('tt_content');
-t3lib_extMgm::addPlugin(array('Fluid Content', 'fluidcontent_content', t3lib_extMgm::extRelPath('fluidcontent') . 'ext_icon.gif'), 'CType');
-//t3lib_extMgm::addStaticFile($_EXTKEY, 'Configuration/TypoScript', 'Fluid Content'); // Disabled temporarily: fluidcontent currently does not use TS configuration.
-t3lib_extMgm::addTCAcolumns('tt_content', array(
+\TYPO3\CMS\Core\Utility\GeneralUtility::loadTCA('tt_content');
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPlugin(array('Fluid Content', 'fluidcontent_content', \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('fluidcontent') . 'ext_icon.gif'), 'CType');
+//\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'Configuration/TypoScript', 'Fluid Content'); // Disabled temporarily: fluidcontent currently does not use TS configuration.
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_content', array(
 	'tx_fed_fcefile' => array (
 		'exclude' => 1,
 		'label' => 'LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:tt_content.tx_fed_fcefile',
@@ -47,7 +47,7 @@ $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
 $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'] = 'apps-pagetree-root';
 
 if (file_exists(FLUIDCONTENT_TEMPFILE)) {
-	t3lib_extMgm::addPageTSConfig(file_get_contents(FLUIDCONTENT_TEMPFILE));
+	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(file_get_contents(FLUIDCONTENT_TEMPFILE));
 }
 
 unset($tab);

@@ -48,8 +48,8 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 			return NULL;
 		}
 		unset($content);
-		/** @var $objectManager Tx_Extbase_Object_ObjectManager */
-		$objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
+		/** @var $objectManager \TYPO3\CMS\Extbase\Object\ObjectManager */
+		$objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
 		/** @var $flexformService Tx_Flux_Service_FluxService */
 		$flexformService = $objectManager->get('Tx_Flux_Service_FluxService');
 		/** @var $configurationService Tx_Fluidcontent_Service_ConfigurationService */
@@ -78,9 +78,9 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 	public function renderTitle($data) {
 		$typoscriptObjectPath = 'lib.stdheader';
 		/** @var $contentObject tslib_cObj */
-		$contentObject = t3lib_div::makeInstance('tslib_cObj');
+		$contentObject = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tslib_cObj');
 		$contentObject->start($data);
-		$pathSegments = t3lib_div::trimExplode('.', $typoscriptObjectPath);
+		$pathSegments = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode('.', $typoscriptObjectPath);
 		$lastSegment = array_pop($pathSegments);
 		$setup = $GLOBALS['TSFE']->tmpl->setup;
 		foreach ($pathSegments as $segment) {
