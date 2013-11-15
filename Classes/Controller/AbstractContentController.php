@@ -46,10 +46,10 @@ abstract class Tx_Fluidcontent_Controller_AbstractContentController extends Tx_F
 	}
 
 	/**
-	 * @param Tx_Extbase_MVC_View_ViewInterface $view
+	 * @param \TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view
 	 * @return void
 	 */
-	public function initializeView(Tx_Extbase_MVC_View_ViewInterface $view) {
+	public function initializeView(\TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view) {
 		parent::initializeView($view);
 		$view->assign('page', $GLOBALS['TSFE']->page);
 		$view->assign('user', $GLOBALS['TSFE']->fe_user->user);
