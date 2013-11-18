@@ -58,7 +58,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 	protected $configurationSectionName = 'Configuration';
 
 	/**
-	 * @var Tx_Extbase_Configuration_ConfigurationManagerInterface
+	 * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
 	 */
 	protected $configurationManager;
 
@@ -68,10 +68,10 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 	protected $configurationService;
 
 	/**
-	 * @param Tx_Extbase_Configuration_ConfigurationManagerInterface $configurationManager
+	 * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
 	 * @return void
 	 */
-	public function injectConfigurationManager(Tx_Extbase_Configuration_ConfigurationManagerInterface $configurationManager) {
+	public function injectConfigurationManager(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager) {
 		$this->configurationManager = $configurationManager;
 	}
 
@@ -89,7 +89,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 	 */
 	public function getTemplatePathAndFilename(array $row) {
 		if (FALSE === empty($this->templatePathAndFilename)) {
-			$templatePathAndFilename = t3lib_div::getFileAbsFileName($this->templatePathAndFilename);
+			$templatePathAndFilename = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($this->templatePathAndFilename);
 			if (TRUE === file_exists($templatePathAndFilename)) {
 				return $templatePathAndFilename;
 			}
@@ -114,7 +114,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 				if (TRUE === isset($possibleOverlayPaths['templateRootPath'])) {
 					$overlayTemplateRootPath = $possibleOverlayPaths['templateRootPath'];
 					$overlayTemplateRootPath = rtrim($overlayTemplateRootPath, '/');
-					$possibleOverlayFile = t3lib_div::getFileAbsFileName($overlayTemplateRootPath . '/Content/' . $filename);
+					$possibleOverlayFile = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($overlayTemplateRootPath . '/Content/' . $filename);
 					if (TRUE === file_exists($possibleOverlayFile)) {
 						$templatePathAndFilename = $possibleOverlayFile;
 						break;
@@ -122,7 +122,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 				}
 			}
 		}
-		$templatePathAndFilename = t3lib_div::getFileAbsFileName($templatePathAndFilename);
+		$templatePathAndFilename = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($templatePathAndFilename);
 		return $templatePathAndFilename;
 	}
 
@@ -167,7 +167,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 			$extensionName = array_shift(explode(':', $action));
 		}
 		if (FALSE === empty($extensionName)) {
-			$extensionKey = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
+			$extensionKey = \TYPO3\CMS\Core\Utility\GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
 			return $extensionKey;
 		}
 		return parent::getExtensionKey($row);
@@ -181,7 +181,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 		$fileReference = $this->getControllerActionReferenceFromRecord($row);
 		$identifier = explode(':', $fileReference);
 		$extensionName = array_shift($identifier);
-		$extensionKey = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
+		$extensionKey = \TYPO3\CMS\Core\Utility\GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
 		return $extensionKey;
 	}
 
