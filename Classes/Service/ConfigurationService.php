@@ -36,11 +36,6 @@
 class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxService implements t3lib_Singleton {
 
 	/**
-	 * @var array
-	 */
-	private static $cache = array();
-
-	/**
 	 * @var string
 	 */
 	protected $defaultIcon;
