@@ -28,6 +28,7 @@ use FluidTYPO3\Fluidcontent\Service\ConfigurationService;
 use FluidTYPO3\Flux\Provider\ProviderInterface;
 use FluidTYPO3\Flux\Provider\ContentProvider as FluxContentProvider;
 use FluidTYPO3\Flux\Utility\PathUtility;
+use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
@@ -175,7 +176,7 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 			$extensionName = array_shift(explode(':', $action));
 		}
 		if (FALSE === empty($extensionName)) {
-			$extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
+			$extensionKey = ExtensionNamingUtility::getExtensionKey($extensionName);
 			return $extensionKey;
 		}
 		return parent::getExtensionKey($row);
@@ -189,8 +190,7 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 		$fileReference = $this->getControllerActionReferenceFromRecord($row);
 		$identifier = explode(':', $fileReference);
 		$extensionName = array_shift($identifier);
-		$extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
-		return $extensionKey;
+		return $extensionName;
 	}
 
 	/**
