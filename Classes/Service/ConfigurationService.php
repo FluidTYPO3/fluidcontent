@@ -33,7 +33,7 @@
  * @package Fluidcontent
  * @subpackage Service
  */
-class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxService implements t3lib_Singleton {
+class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxService implements \TYPO3\CMS\Core\SingletonInterface {
 
 	/**
 	 * @var string
@@ -44,7 +44,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 * CONSTRUCTOR
 	 */
 	public function __construct() {
-		$this->defaultIcon = '../' . t3lib_extMgm::siteRelPath('fluidcontent') . 'Resources/Public/Icons/Plugin.png';
+		$this->defaultIcon = '../' . \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::siteRelPath('fluidcontent') . 'Resources/Public/Icons/Plugin.png';
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		}
 		$newLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'collections', 'fluidcontent');
 		$oldLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'fce', 'fed');
-		$merged = t3lib_div::array_merge_recursive_overrule($oldLocation, $newLocation);
+		$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($oldLocation, $newLocation);
 		$registeredExtensionKeys = Tx_Flux_Core::getRegisteredProviderExtensionKeys('Content');
 		if (NULL === $extensionName) {
 			foreach ($registeredExtensionKeys as $registeredExtensionKey) {
@@ -76,10 +76,10 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		} else {
 			$nativeViewLocation = $this->getViewConfigurationForExtensionName($extensionName);
 			if (TRUE === is_array($nativeViewLocation)) {
-				$merged = t3lib_div::array_merge_recursive_overrule($nativeViewLocation, $merged);
+				$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($nativeViewLocation, $merged);
 			}
 			if (FALSE === isset($merged['extensionKey'])) {
-				$merged['extensionKey'] = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
+				$merged['extensionKey'] = \TYPO3\CMS\Core\Utility\GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
 			}
 		}
 		self::$cache[$cacheKey] = $merged;
@@ -106,13 +106,13 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 				$pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
 				$pageTsConfig .= $collectionPageTsConfig . LF;
 				$pageTsConfig .= '[GLOBAL]' . LF;
-				$this->message('Built content setup for page ' . $pageUid, t3lib_div::SYSLOG_SEVERITY_INFO, 'Fluidcontent');
+				$this->message('Built content setup for page ' . $pageUid, \TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_INFO, 'Fluidcontent');
 			} catch (Exception $error) {
 				$this->debug($error);
 			}
 		}
-		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration', t3lib_div::SYSLOG_SEVERITY_INFO);
-		t3lib_div::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
+		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration', \TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_INFO);
+		\TYPO3\CMS\Core\Utility\GeneralUtility::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
 		return NULL;
 	}
 
@@ -131,11 +131,11 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		foreach ($templates as $templateRecord) {
 			$pageUid = $templateRecord['pid'];
 			/** @var t3lib_tsparser_ext $template */
-			$template = t3lib_div::makeInstance('t3lib_tsparser_ext');
+			$template = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\TypoScript\\ExtendedTemplateService');
 			$template->tt_track = 0;
 			$template->init();
-			/** @var t3lib_pageSelect $sys_page */
-			$sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
+			/** @var \TYPO3\CMS\Frontend\Page\PageRepository $sys_page */
+			$sys_page = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
 			$rootLine = $sys_page->getRootLine($pageUid);
 			$template->runThroughTemplates($rootLine);
 			$template->generateConfig();
@@ -149,9 +149,9 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 				}
 				$registeredPathCollections[$registeredExtensionKey] = $nativeViewLocation;
 			}
-			$merged = t3lib_div::array_merge_recursive_overrule($oldTemplatePathLocation, $newTemplatePathLocation);
-			$merged = t3lib_div::removeDotsFromTS($merged);
-			$merged = t3lib_div::array_merge($merged, $registeredPathCollections);
+			$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($oldTemplatePathLocation, $newTemplatePathLocation);
+			$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::removeDotsFromTS($merged);
+			$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge($merged, $registeredPathCollections);
 			$allTemplatePaths[$pageUid] = $merged;
 		}
 		return $allTemplatePaths;
@@ -194,7 +194,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 				$templateRootPath = $templateRootPath . 'Content/';
 			}
 			$files = array();
-			$files = t3lib_div::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
+			$files = \TYPO3\CMS\Core\Utility\GeneralUtility::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
 			if (count($files) > 0) {
 				foreach ($files as $templateFilename) {
 					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
@@ -305,7 +305,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 * @return void
 	 */
 	protected function sendDisabledContentWarning($templatePathAndFilename) {
-		$this->message('Disabled Fluid Content Element: ' . $templatePathAndFilename, t3lib_div::SYSLOG_SEVERITY_NOTICE);
+		$this->message('Disabled Fluid Content Element: ' . $templatePathAndFilename, \TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_NOTICE);
 	}
 
 }
