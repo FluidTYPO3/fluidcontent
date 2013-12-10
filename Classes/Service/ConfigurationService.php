@@ -1,4 +1,5 @@
 <?php
+namespace FluidTYPO3\Fluidcontent\Service;
 /***************************************************************
  *  Copyright notice
  *
@@ -23,6 +24,13 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use FluidTYPO3\Flux\Core;
+use FluidTYPO3\Flux\Service\FluxService;
+use FluidTYPO3\Flux\Utility\PathUtility;
+use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Configuration Service
  *
@@ -33,7 +41,7 @@
  * @package Fluidcontent
  * @subpackage Service
  */
-class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxService implements \TYPO3\CMS\Core\SingletonInterface {
+class ConfigurationService extends FluxService implements SingletonInterface {
 
 	/**
 	 * @var string
@@ -41,10 +49,10 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	protected $defaultIcon;
 
 	/**
-	 * CONSTRUCTOR
+	 * Constructor
 	 */
 	public function __construct() {
-		$this->defaultIcon = '../' . \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::siteRelPath('fluidcontent') . 'Resources/Public/Icons/Plugin.png';
+		$this->defaultIcon = '../' . ExtensionManagementUtility::siteRelPath('fluidcontent') . 'Resources/Public/Icons/Plugin.png';
 	}
 
 	/**
@@ -62,8 +70,8 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		}
 		$newLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'collections', 'fluidcontent');
 		$oldLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'fce', 'fed');
-		$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($oldLocation, $newLocation);
-		$registeredExtensionKeys = Tx_Flux_Core::getRegisteredProviderExtensionKeys('Content');
+		$merged = GeneralUtility::array_merge_recursive_overrule($oldLocation, $newLocation);
+		$registeredExtensionKeys = Core::getRegisteredProviderExtensionKeys('Content');
 		if (NULL === $extensionName) {
 			foreach ($registeredExtensionKeys as $registeredExtensionKey) {
 				$nativeViewLocation = $this->getContentConfiguration($registeredExtensionKey);
@@ -76,10 +84,10 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		} else {
 			$nativeViewLocation = $this->getViewConfigurationForExtensionName($extensionName);
 			if (TRUE === is_array($nativeViewLocation)) {
-				$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($nativeViewLocation, $merged);
+				$merged = GeneralUtility::array_merge_recursive_overrule($nativeViewLocation, $merged);
 			}
 			if (FALSE === isset($merged['extensionKey'])) {
-				$merged['extensionKey'] = \TYPO3\CMS\Core\Utility\GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
+				$merged['extensionKey'] = GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
 			}
 		}
 		self::$cache[$cacheKey] = $merged;
@@ -106,13 +114,13 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 				$pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
 				$pageTsConfig .= $collectionPageTsConfig . LF;
 				$pageTsConfig .= '[GLOBAL]' . LF;
-				$this->message('Built content setup for page ' . $pageUid, \TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_INFO, 'Fluidcontent');
-			} catch (Exception $error) {
+				$this->message('Built content setup for page ' . $pageUid, GeneralUtility::SYSLOG_SEVERITY_INFO, 'Fluidcontent');
+			} catch (\Exception $error) {
 				$this->debug($error);
 			}
 		}
-		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration', \TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_INFO);
-		\TYPO3\CMS\Core\Utility\GeneralUtility::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
+		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration', GeneralUtility::SYSLOG_SEVERITY_INFO);
+		GeneralUtility::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
 		return NULL;
 	}
 
@@ -127,15 +135,15 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 */
 	protected function getPathConfigurationsFromRootTypoScriptTemplates($templates) {
 		$allTemplatePaths = array();
-		$registeredExtensionKeys = Tx_Flux_Core::getRegisteredProviderExtensionKeys('Content');
+		$registeredExtensionKeys = Core::getRegisteredProviderExtensionKeys('Content');
 		foreach ($templates as $templateRecord) {
 			$pageUid = $templateRecord['pid'];
-			/** @var t3lib_tsparser_ext $template */
-			$template = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\TypoScript\\ExtendedTemplateService');
+			/** @var \TYPO3\CMS\Core\TypoScript\ExtendedTemplateService $template */
+			$template = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\TypoScript\\ExtendedTemplateService');
 			$template->tt_track = 0;
 			$template->init();
 			/** @var \TYPO3\CMS\Frontend\Page\PageRepository $sys_page */
-			$sys_page = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
+			$sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
 			$rootLine = $sys_page->getRootLine($pageUid);
 			$template->runThroughTemplates($rootLine);
 			$template->generateConfig();
@@ -149,9 +157,9 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 				}
 				$registeredPathCollections[$registeredExtensionKey] = $nativeViewLocation;
 			}
-			$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($oldTemplatePathLocation, $newTemplatePathLocation);
-			$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::removeDotsFromTS($merged);
-			$merged = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge($merged, $registeredPathCollections);
+			$merged = GeneralUtility::array_merge_recursive_overrule($oldTemplatePathLocation, $newTemplatePathLocation);
+			$merged = GeneralUtility::removeDotsFromTS($merged);
+			$merged = GeneralUtility::array_merge($merged, $registeredPathCollections);
 			$allTemplatePaths[$pageUid] = $merged;
 		}
 		return $allTemplatePaths;
@@ -185,7 +193,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 				'layoutRootPath' => TRUE === isset($templatePathSet['layoutRootPath']) ? $templatePathSet['layoutRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Layouts/',
 				'partialRootPath' => TRUE === isset($templatePathSet['partialRootPath']) ? $templatePathSet['partialRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Partials/',
 			);
-			$paths = Tx_Flux_Utility_Path::translatePath($paths);
+			$paths = PathUtility::translatePath($paths);
 			$templateRootPath = $paths['templateRootPath'];
 			if ('/' !== substr($templateRootPath, -1)) {
 				$templateRootPath .= '/';
@@ -194,8 +202,8 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 				$templateRootPath = $templateRootPath . 'Content/';
 			}
 			$files = array();
-			$files = \TYPO3\CMS\Core\Utility\GeneralUtility::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
-			if (count($files) > 0) {
+			$files = GeneralUtility::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
+			if (0 < count($files)) {
 				foreach ($files as $templateFilename) {
 					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
 					$form = $this->getFormFromTemplateFile($templateFilename, 'Configuration', 'form', $paths, $extensionKey);
@@ -263,7 +271,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 *
 	 * @param string $tabId
 	 * @param string $id
-	 * @param Tx_Flux_Form $form
+	 * @param \FluidTYPO3\Flux\Form $form
 	 * @param string $templateFileIdentity
 	 * @return string
 	 */
@@ -305,7 +313,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 * @return void
 	 */
 	protected function sendDisabledContentWarning($templatePathAndFilename) {
-		$this->message('Disabled Fluid Content Element: ' . $templatePathAndFilename, \TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_NOTICE);
+		$this->message('Disabled Fluid Content Element: ' . $templatePathAndFilename, GeneralUtility::SYSLOG_SEVERITY_NOTICE);
 	}
 
 }

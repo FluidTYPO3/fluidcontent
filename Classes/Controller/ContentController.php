@@ -1,4 +1,5 @@
 <?php
+namespace FluidTYPO3\Fluidcontent\Controller;
 /***************************************************************
  *  Copyright notice
  *
@@ -30,6 +31,6 @@
  * @subpackage Controller
  * @route off
  */
-class Tx_Fluidcontent_Controller_ContentController extends Tx_Fluidcontent_Controller_AbstractContentController implements Tx_Fluidcontent_Controller_ContentControllerInterface {
+class ContentController extends AbstractContentController implements ContentControllerInterface {
 
 }
