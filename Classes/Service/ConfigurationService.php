@@ -27,6 +27,7 @@ namespace FluidTYPO3\Fluidcontent\Service;
 use FluidTYPO3\Flux\Core;
 use FluidTYPO3\Flux\Service\FluxService;
 use FluidTYPO3\Flux\Utility\PathUtility;
+use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -76,7 +77,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 			foreach ($registeredExtensionKeys as $registeredExtensionKey) {
 				$nativeViewLocation = $this->getContentConfiguration($registeredExtensionKey);
 				if (FALSE === isset($nativeViewLocation['extensionKey'])) {
-					$nativeViewLocation['extensionKey'] = $registeredExtensionKey;
+					$nativeViewLocation['extensionKey'] = ExtensionNamingUtility::getExtensionKey($registeredExtensionKey);
 				}
 				self::$cache[$registeredExtensionKey] = $nativeViewLocation;
 				$merged[$registeredExtensionKey] = $nativeViewLocation;
@@ -87,7 +88,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 				$merged = GeneralUtility::array_merge_recursive_overrule($nativeViewLocation, $merged);
 			}
 			if (FALSE === isset($merged['extensionKey'])) {
-				$merged['extensionKey'] = GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
+				$merged['extensionKey'] = ExtensionNamingUtility::getExtensionKey($extensionName);
 			}
 		}
 		self::$cache[$cacheKey] = $merged;
@@ -119,7 +120,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 				$this->debug($error);
 			}
 		}
-		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration', GeneralUtility::SYSLOG_SEVERITY_INFO);
+		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration to ' . FLUIDCONTENT_TEMPFILE, GeneralUtility::SYSLOG_SEVERITY_INFO);
 		GeneralUtility::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
 		return NULL;
 	}
@@ -153,7 +154,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 			foreach ($registeredExtensionKeys as $registeredExtensionKey) {
 				$nativeViewLocation = $this->getContentConfiguration($registeredExtensionKey);
 				if (FALSE === isset($nativeViewLocation['extensionKey'])) {
-					$nativeViewLocation['extensionKey'] = $registeredExtensionKey;
+					$nativeViewLocation['extensionKey'] = ExtensionNamingUtility::getExtensionKey($registeredExtensionKey);
 				}
 				$registeredPathCollections[$registeredExtensionKey] = $nativeViewLocation;
 			}
@@ -188,6 +189,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 		foreach ($allTemplatePaths as $key => $templatePathSet) {
 			$key = trim($key, '.');
 			$extensionKey = TRUE === isset($templatePathSet['extensionKey']) ? $templatePathSet['extensionKey'] : $key;
+			$extensionKey = ExtensionNamingUtility::getExtensionKey($extensionKey);
 			$paths = array(
 				'templateRootPath' => TRUE === isset($templatePathSet['templateRootPath']) ? $templatePathSet['templateRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Templates/',
 				'layoutRootPath' => TRUE === isset($templatePathSet['layoutRootPath']) ? $templatePathSet['layoutRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Layouts/',
@@ -222,7 +224,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 					} else {
 						$tabId = 'Content';
 					}
-					$id = $key . '_' . preg_replace('/[\.\/]/', '_', $fileRelPath);
+					$id = $extensionKey . '_' . preg_replace('/[\.\/]/', '_', $fileRelPath);
 					$elementTsConfig = $this->buildWizardTabItem($tabId, $id, $form, $key . ':' . $fileRelPath);
 					$wizardTabs[$tabId]['elements'][$id] = $elementTsConfig;
 					$wizardTabs[$tabId]['key'] = $extensionKey;
