@@ -1,4 +1,5 @@
 <?php
+namespace FluidTYPO3\Fluidcontent\UserFunction;
 /***************************************************************
  *  Copyright notice
  *
@@ -22,6 +23,8 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Checks the configuration stored in a Flux form to see
  * if the particular field being rendered should be
@@ -30,7 +33,7 @@
  * @package	Fluidcontent
  * @subpackage UserFunction
  */
-class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
+class ContentFieldSuppressor {
 
 	/**
 	 * @param string $content
@@ -48,11 +51,11 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 			return NULL;
 		}
 		unset($content);
-		/** @var $objectManager \TYPO3\CMS\Extbase\Object\ObjectManager */
-		$objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
-		/** @var $flexformService Tx_Flux_Service_FluxService */
+		/** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
+		$objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
+		/** @var \FluidTYPO3\Flux\Service\FluxService $flexformService */
 		$flexformService = $objectManager->get('Tx_Flux_Service_FluxService');
-		/** @var $configurationService Tx_Fluidcontent_Service_ConfigurationService */
+		/** @var \FluidTYPO3\Fluidcontent\Service\ConfigurationService $configurationService */
 		$configurationService = $objectManager->get('Tx_Fluidcontent_Service_ConfigurationService');
 		list ($extensionName, $filename) = explode(':', $record['tx_fed_fcefile']);
 		$paths = $configurationService->getContentConfiguration($extensionName);
@@ -78,9 +81,9 @@ class Tx_Fluidcontent_UserFunction_ContentFieldSuppressor {
 	public function renderTitle($data) {
 		$typoscriptObjectPath = 'lib.stdheader';
 		/** @var $contentObject tslib_cObj */
-		$contentObject = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tslib_cObj');
+		$contentObject = GeneralUtility::makeInstance('tslib_cObj');
 		$contentObject->start($data);
-		$pathSegments = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode('.', $typoscriptObjectPath);
+		$pathSegments = GeneralUtility::trimExplode('.', $typoscriptObjectPath);
 		$lastSegment = array_pop($pathSegments);
 		$setup = $GLOBALS['TSFE']->tmpl->setup;
 		foreach ($pathSegments as $segment) {

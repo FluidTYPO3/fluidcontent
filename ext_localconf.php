@@ -14,4 +14,4 @@ if (!defined ('TYPO3_MODE')) {
 	\TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
 );
 
-Tx_Flux_Core::registerConfigurationProvider('Tx_Fluidcontent_Provider_ContentProvider');
+\FluidTYPO3\Flux\Core::registerConfigurationProvider('FluidTYPO3\Fluidcontent\Provider\ContentProvider');

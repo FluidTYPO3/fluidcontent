@@ -1,4 +1,5 @@
 <?php
+namespace FluidTYPO3\Fluidcontent\Provider;
 /*****************************************************************
  *  Copyright notice
  *
@@ -23,6 +24,13 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  *****************************************************************/
 
+use FluidTYPO3\Fluidcontent\Service\ConfigurationService;
+use FluidTYPO3\Flux\Provider\ProviderInterface;
+use FluidTYPO3\Flux\Provider\ContentProvider as FluxContentProvider;
+use FluidTYPO3\Flux\Utility\PathUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+
 /**
  * Content object configuration provider
  *
@@ -30,7 +38,7 @@
  * @package Fluidcontent
  * @subpackage Provider
  */
-class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentProvider implements Tx_Flux_Provider_ProviderInterface {
+class ContentProvider extends FluxContentProvider implements ProviderInterface {
 
 	/**
 	 * @var string
@@ -63,7 +71,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 	protected $configurationManager;
 
 	/**
-	 * @var Tx_Fluidcontent_Service_ConfigurationService
+	 * @var \FluidTYPO3\Fluidcontent\Service\ConfigurationService
 	 */
 	protected $configurationService;
 
@@ -71,15 +79,15 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 	 * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
 	 * @return void
 	 */
-	public function injectConfigurationManager(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager) {
+	public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager) {
 		$this->configurationManager = $configurationManager;
 	}
 
 	/**
-	 * @param Tx_Fluidcontent_Service_ConfigurationService $configurationService
+	 * @param \FluidTYPO3\Fluidcontent\Service\ConfigurationService $configurationService
 	 * @return void
 	 */
-	public function injectConfigurationService(Tx_Fluidcontent_Service_ConfigurationService $configurationService) {
+	public function injectConfigurationService(ConfigurationService $configurationService) {
 		$this->configurationService = $configurationService;
 	}
 
@@ -89,7 +97,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 	 */
 	public function getTemplatePathAndFilename(array $row) {
 		if (FALSE === empty($this->templatePathAndFilename)) {
-			$templatePathAndFilename = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($this->templatePathAndFilename);
+			$templatePathAndFilename = GeneralUtility::getFileAbsFileName($this->templatePathAndFilename);
 			if (TRUE === file_exists($templatePathAndFilename)) {
 				return $templatePathAndFilename;
 			}
@@ -114,7 +122,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 				if (TRUE === isset($possibleOverlayPaths['templateRootPath'])) {
 					$overlayTemplateRootPath = $possibleOverlayPaths['templateRootPath'];
 					$overlayTemplateRootPath = rtrim($overlayTemplateRootPath, '/');
-					$possibleOverlayFile = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($overlayTemplateRootPath . '/Content/' . $filename);
+					$possibleOverlayFile = GeneralUtility::getFileAbsFileName($overlayTemplateRootPath . '/Content/' . $filename);
 					if (TRUE === file_exists($possibleOverlayFile)) {
 						$templatePathAndFilename = $possibleOverlayFile;
 						break;
@@ -122,7 +130,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 				}
 			}
 		}
-		$templatePathAndFilename = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($templatePathAndFilename);
+		$templatePathAndFilename = GeneralUtility::getFileAbsFileName($templatePathAndFilename);
 		return $templatePathAndFilename;
 	}
 
@@ -134,7 +142,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 		$extensionName = $this->getExtensionKey($row);
 		$paths = $this->configurationService->getContentConfiguration($extensionName);
 		if (TRUE === is_array($paths) && FALSE === empty($paths)) {
-			$paths = Tx_Flux_Utility_Path::translatePath($paths);
+			$paths = PathUtility::translatePath($paths);
 			return $paths;
 		}
 
@@ -167,7 +175,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 			$extensionName = array_shift(explode(':', $action));
 		}
 		if (FALSE === empty($extensionName)) {
-			$extensionKey = \TYPO3\CMS\Core\Utility\GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
+			$extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
 			return $extensionKey;
 		}
 		return parent::getExtensionKey($row);
@@ -181,7 +189,7 @@ class Tx_Fluidcontent_Provider_ContentProvider extends Tx_Flux_Provider_ContentP
 		$fileReference = $this->getControllerActionReferenceFromRecord($row);
 		$identifier = explode(':', $fileReference);
 		$extensionName = array_shift($identifier);
-		$extensionKey = \TYPO3\CMS\Core\Utility\GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
+		$extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
 		return $extensionKey;
 	}
 
