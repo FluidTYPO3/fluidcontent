@@ -170,9 +170,17 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 * @return array
 	 */
 	protected function getAllRootTypoScriptTemplates() {
-		$condition = 'deleted = 0 AND hidden = 0  AND starttime<=' . $GLOBALS['SIM_ACCESS_TIME'] . ' AND (endtime=0 OR endtime>' . $GLOBALS['SIM_ACCESS_TIME'] . ')';
-		$condition .= ' AND pid IN (SELECT uid FROM pages WHERE deleted = 0)'; // Make sure template is not on deleted page
-		$rootTypoScriptTemplates = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid', 'sys_template', $condition);
+		static $statement = NULL;
+		if (NULL === $statement) {
+			$statement = $GLOBALS['TYPO3_DB']->prepare_SELECTquery('pid', 'sys_template', 'deleted = 0 AND hidden = 0 AND starttime <= :starttime AND (endtime = 0 OR endtime > :endtime)');
+		}
+
+		$statement->bindValue(':starttime', $GLOBALS['SIM_ACCESS_TIME']);
+		$statement->bindValue(':endtime', $GLOBALS['SIM_ACCESS_TIME']);
+		$statement->execute();
+		$rootTypoScriptTemplates = $statement->fetchAll();
+		$statement->free();
+
 		return $rootTypoScriptTemplates;
 	}
 
