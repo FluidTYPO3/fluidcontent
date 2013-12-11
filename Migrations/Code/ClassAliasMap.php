@@ -6,5 +6,4 @@ return array(
 	'Tx_Fluidcontent_Controller_ContentControllerInterface' => 'FluidTYPO3\Fluidcontent\Controller\ContentControllerInterface',
 	'Tx_Fluidcontent_Provider_ContentProvider' => 'FluidTYPO3\Fluidcontent\Provider\ContentProvider',
 	'Tx_Fluidcontent_Service_ConfigurationService' => 'FluidTYPO3\Fluidcontent\Service\ConfigurationService',
-	'Tx_Fluidcontent_UserFunction_ContentFieldSuppressor' => 'FluidTYPO3\Fluidcontent\UserFunction\ContentFieldSuppressor',
 );
