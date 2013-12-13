@@ -26,7 +26,7 @@ namespace FluidTYPO3\Fluidcontent\Backend;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3\CMS\Frontend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
+use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
 
 /**
  * Class that renders a selection field for Fluid FCE template selection
@@ -58,7 +58,7 @@ class ContentSelector {
 		$conditions->setPageId($pageUid);
 		$tsParser->parse($pageTypoScript, $conditions);
 		$setup = $tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'];
-		if (FALSE === is_array($tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'])) {
+		if (FALSE === is_array($setup)) {
 			return LocalizationUtility::translate('pages.no_content_types', 'Fluidcontent');
 		}
 		$setup = GeneralUtility::removeDotsFromTS($setup);
