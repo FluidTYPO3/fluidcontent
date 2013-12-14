@@ -1,0 +1,1 @@
+ALTER TABLE `tt_content` ADD `tx_fed_fcefile` varchar(255) DEFAULT '' NOT NULL;
