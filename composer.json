@@ -1,8 +1,19 @@
 {
     "name": "fluidtypo3/fluidcontent",
-    "description": "The fluidcontent package from FluidTYPO3",
+    "description": "Create Flexible Content elements in pure fluid",
     "require": {
         "fluidtypo3/flux": "*"
     },
-    "type": "typo3-cms-extension"
+    "type": "typo3-cms-extension",
+    "keywords": ["TYPO3 CMS", "templating", "bootstrap", "flux", "fluidcontent", "fedext", "fluid"],
+    "homepage": "http://fedext.net",
+    "license": "GPL-2.0+",
+    "support": {
+        "irc": "irc://irc.freenode.org/fedext",
+        "issues": "https://github.com/FluidTYPO3/fluidcontent_bootstrap/issues"
+    },
+    "suggest": {
+        "fluidtypo3/fluidpages": "Gives the ability to render Page Templates with pure fluid.",
+        "fluidtypo3/fluidcontent_bootstrap": "Provides Twitter Bootstrap templates for fluidcontent"
+    }
 }
