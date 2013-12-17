@@ -10,6 +10,7 @@ env:
   - DB=mysql TYPO3=TYPO3_6-0 INTEGRATION=master
 
 matrix:
+   fast_finish: true
    include:
      - php: 5.5
        env: DB=mysql TYPO3=master INTEGRATION=master
@@ -31,7 +32,7 @@ before_script:
   - mkdir uploads
   - mkdir typo3temp
 
-  - git clone --depth 1 git://github.com/FluidTYPO3/flux.git typo3conf/ext/flux
+  - git clone --depth 1 --single-branch --branch $TRAVIS_BRANCH git://github.com/FluidTYPO3/flux.git typo3conf/ext/flux
   - git clone --depth 1 git://git.typo3.org/TYPO3v4/Extensions/phpunit.git typo3conf/ext/phpunit
   - git clone --depth 1 git://github.com/FluidTYPO3/builder.git typo3conf/ext/builder
   - mv fluidcontent ./typo3conf/ext/
