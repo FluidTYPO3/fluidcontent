@@ -1,4 +1,5 @@
 <?php
+namespace FluidTYPO3\Fluidcontent\Backend;
 /***************************************************************
  *  Copyright notice
  *
@@ -22,13 +23,18 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
+
 /**
  * Class that renders a selection field for Fluid FCE template selection
  *
  * @package	Fluidcontent
  * @subpackage Backend
  */
-class Tx_Fluidcontent_Backend_ContentSelector {
+class ContentSelector {
 
 	/**
 	 * Render a Flexible Content Element type selection field
@@ -42,15 +48,20 @@ class Tx_Fluidcontent_Backend_ContentSelector {
 			return NULL;
 		}
 		$pageTypoScript = file_get_contents(PATH_site . 'typo3temp/.FED_CONTENT');
-		$tsParser = new t3lib_TSparser();
-		$conditions = new t3lib_matchCondition_backend();
-		$conditions->getPageId(t3lib_div::_GET('id'));
+		$tsParser = new TypoScriptParser();
+		$conditions = new ConditionMatcher();
+		$pageUid = GeneralUtility::_GET('id');
+		$pageUid = intval($pageUid);
+		if (0 === $pageUid) {
+		    $pageUid = intval($parameters['row']['pid']);
+		}
+		$conditions->setPageId($pageUid);
 		$tsParser->parse($pageTypoScript, $conditions);
 		$setup = $tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'];
-		if (FALSE === is_array($tsParser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'])) {
-			return Tx_Extbase_Utility_Localization::translate('pages.no_content_types', 'Fluidcontent');
+		if (FALSE === is_array($setup)) {
+			return LocalizationUtility::translate('pages.no_content_types', 'Fluidcontent');
 		}
-		$setup = t3lib_div::removeDotsFromTS($setup);
+		$setup = GeneralUtility::removeDotsFromTS($setup);
 		$name = $parameters['itemFormElName'];
 		$value = $parameters['itemFormElValue'];
 		$select = '<div><select name="' . htmlspecialchars($name) . '"  class="formField select" onchange="if (confirm(TBE_EDITOR.labels.onChangeAlert) && TBE_EDITOR.checkSubmit(-1)){ TBE_EDITOR.submitForm() };">' . LF;

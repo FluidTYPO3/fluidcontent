@@ -91,16 +91,16 @@ provided with a `<f:section name="Configuration">` which contains the Flux confi
      xmlns:f="http://typo3.org/ns/fluid/ViewHelpers">
 
 <f:section name="Configuration">
-    <flux:flexform id="ajax-loader" label="Ajax Loader" description="Loads content through AJAX. Requires EXT:fluidwidget">
-        <flux:flexform.field.checkbox name="settings.disable" label="Disable content loading" />
-        <flux:flexform.grid>
-            <flux:flexform.grid.row>
-                <flux:flexform.grid.column>
-                    <flux:flexform.content name="default" label="Content elements to load through AJAX" />
-                </flux:flexform.grid.column>
-            </flux:flexform.grid.row>
-        </flux:flexform.grid>
-    </flux:flexform>
+    <flux:form id="ajax-loader" label="Ajax Loader" description="Loads content through AJAX. Requires EXT:fluidwidget">
+        <flux:field.checkbox name="settings.disable" label="Disable content loading" />
+        <flux:grid>
+            <flux:grid.row>
+                <flux:grid.column>
+                    <flux:form.content name="default" label="Content elements to load through AJAX" />
+                </flux:grid.column>
+            </flux:grid.row>
+        </flux:grid>
+    </flux:form>
 </f:section>
 
 <f:section name="Preview">
@@ -130,10 +130,10 @@ Some facts about the above sample template:
   namespace - see https://github.com/FluidTYPO3/schemaker for more information about this feature).
 * The `Content.html`  Layout file is used. It is allowed to render any section **except for the `Configuration` section**
 * The `Configuration` section contains:
-	* A `<flux:flexform>` node with the minimum allowed configuration: an ID unique to this file (among files in this same
+	* A `<flux:form>` node with the minimum allowed configuration: an ID unique to this file (among files in this same
 	  extension) and a human-readable label presented to content editors when selecting page templates.
-	* A `<flux:flexform.field.checkbox>` field allowing the AJAX loading to be switched off completely
-	* A `<flux:flexform.grid>` with one row with one column, containing one content area allowing content editors to insert
+	* A `<flux:field.checkbox>` field allowing the AJAX loading to be switched off completely
+	* A `<flux:grid>` with one row with one column, containing one content area allowing content editors to insert
 	  the content elements which will be loaded through AJAX. __This grid is mandatory when using content areas__.
 * A `Preview` section which uses Flux's grid Widget to render the actual nested content element area - this approach is used in
   every content element which can contain other content elements - and additional preview content, in this case just a short

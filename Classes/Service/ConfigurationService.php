@@ -1,4 +1,5 @@
 <?php
+namespace FluidTYPO3\Fluidcontent\Service;
 /***************************************************************
  *  Copyright notice
  *
@@ -23,6 +24,14 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use FluidTYPO3\Flux\Core;
+use FluidTYPO3\Flux\Service\FluxService;
+use FluidTYPO3\Flux\Utility\PathUtility;
+use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
+use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Configuration Service
  *
@@ -33,12 +42,7 @@
  * @package Fluidcontent
  * @subpackage Service
  */
-class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxService implements t3lib_Singleton {
-
-	/**
-	 * @var array
-	 */
-	private static $cache = array();
+class ConfigurationService extends FluxService implements SingletonInterface {
 
 	/**
 	 * @var string
@@ -46,10 +50,10 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	protected $defaultIcon;
 
 	/**
-	 * CONSTRUCTOR
+	 * Constructor
 	 */
 	public function __construct() {
-		$this->defaultIcon = '../' . t3lib_extMgm::siteRelPath('fluidcontent') . 'Resources/Public/Icons/Plugin.png';
+		$this->defaultIcon = '../' . ExtensionManagementUtility::siteRelPath('fluidcontent') . 'Resources/Public/Icons/Plugin.png';
 	}
 
 	/**
@@ -67,13 +71,13 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		}
 		$newLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'collections', 'fluidcontent');
 		$oldLocation = (array) $this->getTypoScriptSubConfiguration($extensionName, 'fce', 'fed');
-		$merged = t3lib_div::array_merge_recursive_overrule($oldLocation, $newLocation);
-		$registeredExtensionKeys = Tx_Flux_Core::getRegisteredProviderExtensionKeys('Content');
+		$merged = GeneralUtility::array_merge_recursive_overrule($oldLocation, $newLocation);
+		$registeredExtensionKeys = Core::getRegisteredProviderExtensionKeys('Content');
 		if (NULL === $extensionName) {
 			foreach ($registeredExtensionKeys as $registeredExtensionKey) {
 				$nativeViewLocation = $this->getContentConfiguration($registeredExtensionKey);
 				if (FALSE === isset($nativeViewLocation['extensionKey'])) {
-					$nativeViewLocation['extensionKey'] = $registeredExtensionKey;
+					$nativeViewLocation['extensionKey'] = ExtensionNamingUtility::getExtensionKey($registeredExtensionKey);
 				}
 				self::$cache[$registeredExtensionKey] = $nativeViewLocation;
 				$merged[$registeredExtensionKey] = $nativeViewLocation;
@@ -81,10 +85,10 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		} else {
 			$nativeViewLocation = $this->getViewConfigurationForExtensionName($extensionName);
 			if (TRUE === is_array($nativeViewLocation)) {
-				$merged = t3lib_div::array_merge_recursive_overrule($nativeViewLocation, $merged);
+				$merged = GeneralUtility::array_merge_recursive_overrule($nativeViewLocation, $merged);
 			}
 			if (FALSE === isset($merged['extensionKey'])) {
-				$merged['extensionKey'] = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
+				$merged['extensionKey'] = ExtensionNamingUtility::getExtensionKey($extensionName);
 			}
 		}
 		self::$cache[$cacheKey] = $merged;
@@ -92,7 +96,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	}
 
 	/**
-	 * @return void
+	 * @return NULL
 	 */
 	public function writeCachedConfigurationIfMissing() {
 		if (TRUE === file_exists(FLUIDCONTENT_TEMPFILE)) {
@@ -105,14 +109,20 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			if (FALSE === $collection) {
 				continue;
 			}
-			$wizardTabs = $this->buildAllWizardTabGroups($collection);
-			$collectionPageTsConfig = $this->buildAllWizardTabsPageTsConfig($wizardTabs);
-			$pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
-			$pageTsConfig .= $collectionPageTsConfig . LF;
-			$pageTsConfig .= '[GLOBAL]' . LF;
+			try {
+				$wizardTabs = $this->buildAllWizardTabGroups($collection);
+				$collectionPageTsConfig = $this->buildAllWizardTabsPageTsConfig($wizardTabs);
+				$pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
+				$pageTsConfig .= $collectionPageTsConfig . LF;
+				$pageTsConfig .= '[GLOBAL]' . LF;
+				$this->message('Built content setup for page ' . $pageUid, GeneralUtility::SYSLOG_SEVERITY_INFO, 'Fluidcontent');
+			} catch (\Exception $error) {
+				$this->debug($error);
+			}
 		}
-		t3lib_div::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
-		return;
+		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration to ' . FLUIDCONTENT_TEMPFILE, GeneralUtility::SYSLOG_SEVERITY_INFO);
+		GeneralUtility::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
+		return NULL;
 	}
 
 	/**
@@ -126,15 +136,15 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 */
 	protected function getPathConfigurationsFromRootTypoScriptTemplates($templates) {
 		$allTemplatePaths = array();
-		$registeredExtensionKeys = Tx_Flux_Core::getRegisteredProviderExtensionKeys('Content');
+		$registeredExtensionKeys = Core::getRegisteredProviderExtensionKeys('Content');
 		foreach ($templates as $templateRecord) {
 			$pageUid = $templateRecord['pid'];
-			/** @var t3lib_tsparser_ext $template */
-			$template = t3lib_div::makeInstance('t3lib_tsparser_ext');
+			/** @var \TYPO3\CMS\Core\TypoScript\ExtendedTemplateService $template */
+			$template = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\TypoScript\\ExtendedTemplateService');
 			$template->tt_track = 0;
 			$template->init();
-			/** @var t3lib_pageSelect $sys_page */
-			$sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
+			/** @var \TYPO3\CMS\Frontend\Page\PageRepository $sys_page */
+			$sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
 			$rootLine = $sys_page->getRootLine($pageUid);
 			$template->runThroughTemplates($rootLine);
 			$template->generateConfig();
@@ -144,13 +154,13 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			foreach ($registeredExtensionKeys as $registeredExtensionKey) {
 				$nativeViewLocation = $this->getContentConfiguration($registeredExtensionKey);
 				if (FALSE === isset($nativeViewLocation['extensionKey'])) {
-					$nativeViewLocation['extensionKey'] = $registeredExtensionKey;
+					$nativeViewLocation['extensionKey'] = ExtensionNamingUtility::getExtensionKey($registeredExtensionKey);
 				}
 				$registeredPathCollections[$registeredExtensionKey] = $nativeViewLocation;
 			}
-			$merged = t3lib_div::array_merge_recursive_overrule($oldTemplatePathLocation, $newTemplatePathLocation);
-			$merged = t3lib_div::removeDotsFromTS($merged);
-			$merged = t3lib_div::array_merge($merged, $registeredPathCollections);
+			$merged = GeneralUtility::array_merge_recursive_overrule($oldTemplatePathLocation, $newTemplatePathLocation);
+			$merged = GeneralUtility::removeDotsFromTS($merged);
+			$merged = GeneralUtility::array_merge($merged, $registeredPathCollections);
 			$allTemplatePaths[$pageUid] = $merged;
 		}
 		return $allTemplatePaths;
@@ -160,9 +170,17 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 * @return array
 	 */
 	protected function getAllRootTypoScriptTemplates() {
-		$condition = 'deleted = 0 AND hidden = 0  AND starttime<=' . $GLOBALS['SIM_ACCESS_TIME'] . ' AND (endtime=0 OR endtime>' . $GLOBALS['SIM_ACCESS_TIME'] . ')';
-		$condition .= ' AND pid IN (SELECT uid FROM pages WHERE deleted = 0)'; // Make sure template is not on deleted page
-		$rootTypoScriptTemplates = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid', 'sys_template', $condition);
+		static $statement = NULL;
+		if (NULL === $statement) {
+			$statement = $GLOBALS['TYPO3_DB']->prepare_SELECTquery('pid', 'sys_template', 'deleted = 0 AND hidden = 0 AND starttime <= :starttime AND (endtime = 0 OR endtime > :endtime)');
+		}
+
+		$statement->bindValue(':starttime', $GLOBALS['SIM_ACCESS_TIME']);
+		$statement->bindValue(':endtime', $GLOBALS['SIM_ACCESS_TIME']);
+		$statement->execute();
+		$rootTypoScriptTemplates = $statement->fetchAll();
+		$statement->free();
+
 		return $rootTypoScriptTemplates;
 	}
 
@@ -179,44 +197,43 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 		foreach ($allTemplatePaths as $key => $templatePathSet) {
 			$key = trim($key, '.');
 			$extensionKey = TRUE === isset($templatePathSet['extensionKey']) ? $templatePathSet['extensionKey'] : $key;
-			$extensionName = t3lib_div::underscoredToUpperCamelCase($extensionKey);
+			$extensionKey = ExtensionNamingUtility::getExtensionKey($extensionKey);
 			$paths = array(
 				'templateRootPath' => TRUE === isset($templatePathSet['templateRootPath']) ? $templatePathSet['templateRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Templates/',
 				'layoutRootPath' => TRUE === isset($templatePathSet['layoutRootPath']) ? $templatePathSet['layoutRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Layouts/',
 				'partialRootPath' => TRUE === isset($templatePathSet['partialRootPath']) ? $templatePathSet['partialRootPath'] : 'EXT:' . $extensionKey . '/Resources/Private/Partials/',
 			);
-			$paths = Tx_Flux_Utility_Path::translatePath($paths);
+			$paths = PathUtility::translatePath($paths);
 			$templateRootPath = $paths['templateRootPath'];
 			if ('/' !== substr($templateRootPath, -1)) {
 				$templateRootPath .= '/';
 			}
-			if (TRUE === file_exists($templateRootPath . '/Content/')) {
-				$templateRootPath = $templateRootPath . '/Content/';
+			if (TRUE === file_exists($templateRootPath . 'Content/')) {
+				$templateRootPath = $templateRootPath . 'Content/';
 			}
 			$files = array();
-			$files = t3lib_div::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
-			if (count($files) > 0) {
+			$files = GeneralUtility::getAllFilesAndFoldersInPath($files, $templateRootPath, 'html');
+			if (0 < count($files)) {
 				foreach ($files as $templateFilename) {
 					$fileRelPath = substr($templateFilename, strlen($templateRootPath));
-					$contentConfiguration = $this->getFlexFormConfigurationFromFile($templateFilename, array(), 'Configuration', $paths, $extensionName);
-					if (FALSE === is_array($contentConfiguration)) {
+					$form = $this->getFormFromTemplateFile($templateFilename, 'Configuration', 'form', $paths, $extensionKey);
+					if (TRUE === empty($form)) {
 						$this->sendDisabledContentWarning($templateFilename);
 						continue;
 					}
-					if (0 === count($contentConfiguration)) {
+					if (FALSE === $form->getEnabled()) {
 						$this->sendDisabledContentWarning($templateFilename);
 						continue;
 					}
-					if ($contentConfiguration['enabled'] === 'FALSE') {
-						$this->sendDisabledContentWarning($templateFilename);
-						continue;
+					$group = $form->getGroup();
+					if (FALSE === empty($group)) {
+						$tabId = $this->sanitizeString($group);
+						$wizardTabs[$tabId]['title'] = $group;
+					} else {
+						$tabId = 'Content';
 					}
-					if (isset($contentConfiguration['wizardTab'])) {
-						$tabId = $this->sanitizeString($contentConfiguration['wizardTab']);
-						$wizardTabs[$tabId]['title'] = $contentConfiguration['wizardTab'];
-					}
-					$id = $key . '_' . preg_replace('/[\.\/]/', '_', $fileRelPath);
-					$elementTsConfig = $this->buildWizardTabItem($tabId, $id, $contentConfiguration, $key . ':' . $fileRelPath);
+					$id = $extensionKey . '_' . preg_replace('/[\.\/]/', '_', $fileRelPath);
+					$elementTsConfig = $this->buildWizardTabItem($tabId, $id, $form, $key . ':' . $fileRelPath);
 					$wizardTabs[$tabId]['elements'][$id] = $elementTsConfig;
 					$wizardTabs[$tabId]['key'] = $extensionKey;
 				}
@@ -264,12 +281,13 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 *
 	 * @param string $tabId
 	 * @param string $id
-	 * @param array $contentConfiguration
+	 * @param \FluidTYPO3\Flux\Form $form
 	 * @param string $templateFileIdentity
 	 * @return string
 	 */
-	protected function buildWizardTabItem($tabId, $id, $contentConfiguration, $templateFileIdentity) {
-		$iconFileRelativePath = ($contentConfiguration['icon'] ? $contentConfiguration['icon'] : $this->defaultIcon);
+	protected function buildWizardTabItem($tabId, $id, $form, $templateFileIdentity) {
+		$icon = $form->getIcon();
+		$iconFileRelativePath = ($icon ? $icon : $this->defaultIcon);
 		return sprintf('
 			mod.wizards.newContentElement.wizardItems.%s.elements.%s {
 				icon = %s
@@ -284,8 +302,8 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 			$tabId,
 			$id,
 			$iconFileRelativePath,
-			$contentConfiguration['label'],
-			$contentConfiguration['description'],
+			$form->getLabel(),
+			$form->getDescription(),
 			$templateFileIdentity
 		);
 	}
@@ -305,7 +323,7 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 	 * @return void
 	 */
 	protected function sendDisabledContentWarning($templatePathAndFilename) {
-		$this->message('Disabled Fluid Content Element: ' . $templatePathAndFilename, t3lib_div::SYSLOG_SEVERITY_NOTICE);
+		$this->message('Disabled Fluid Content Element: ' . $templatePathAndFilename, GeneralUtility::SYSLOG_SEVERITY_NOTICE);
 	}
 
 }
