@@ -6,7 +6,7 @@
     },
     "type": "typo3-cms-extension",
     "keywords": ["TYPO3 CMS", "templating", "bootstrap", "flux", "fluidcontent", "fedext", "fluid"],
-    "homepage": "http://fedext.net",
+    "homepage": "https://fedext.net",
     "license": "GPL-2.0+",
     "support": {
         "irc": "irc://irc.freenode.org/fedext",
