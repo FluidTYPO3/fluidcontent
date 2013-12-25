@@ -163,7 +163,6 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 		if (TRUE === file_exists(FLUIDCONTENT_TEMPFILE)) {
 			unlink(FLUIDCONTENT_TEMPFILE);
 		}
-		$this->configurationService->writeCachedConfigurationIfMissing();
 	}
 
 	/**
