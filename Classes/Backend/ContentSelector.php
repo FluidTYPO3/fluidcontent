@@ -45,7 +45,7 @@ class ContentSelector {
 	 */
 	public function renderField(array &$parameters, &$parentObject) {
 		if (FALSE === file_exists(FLUIDCONTENT_TEMPFILE)) {
-			GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Object\ObjectManager')->get('FluidTYPO3\Fluidcontent\Service\ConfigurationService')->writeCachedConfigurationIfMissing();
+			return 'Content configuration file does not exist - is typo3temp writable?';
 		}
 		$pageTypoScript = file_get_contents(FLUIDCONTENT_TEMPFILE);
 		$tsParser = new TypoScriptParser();
