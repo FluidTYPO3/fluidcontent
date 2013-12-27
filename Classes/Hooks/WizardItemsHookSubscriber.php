@@ -26,8 +26,6 @@ namespace FluidTYPO3\Fluidcontent\Hooks;
 
 use FluidTYPO3\Fluidcontent\Service\ConfigurationService;
 use TYPO3\CMS\Backend\Wizard\NewContentElementWizardHookInterface;
-use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
-use TYPO3\CMS\Core\TypoScript\TemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
