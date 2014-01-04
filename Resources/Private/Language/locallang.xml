@@ -1,27 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <T3locallang>
 	<meta type="array">
 		<type>database</type>
-		<description>Language labels for database tables/fields belonging to extension 'fluidcontent'</description>
+		<description>Labels for languages: default</description>
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
-			<label index="tt_content.tx_fed_fcecontentarea">Content area</label>
-			<label index="tt_content.tx_fed_fcefile">Fluid Content type</label>
-			<label index="tt_content.pi_flexform">Element Configuration</label>
+			<label index="default">default</label>
+			<label index="pages.no_content_types">No available content types</label>
+			<label index="pages.tab.configuration">Configuration</label>
 			<label index="pages.tab.content_settings">Content settings</label>
 			<label index="pages.tab.element_type">Element type</label>
-			<label index="pages.tab.configuration">Configuration</label>
-			<label index="pages.no_content_types">No available content types</label>
-		</languageKey>
-		<languageKey index="de" type="array">
+			<label index="tt_content.pi_flexform">Element Configuration</label>
 			<label index="tt_content.tx_fed_fcecontentarea">Content area</label>
 			<label index="tt_content.tx_fed_fcefile">Fluid Content type</label>
-			<label index="tt_content.pi_flexform">Element Konfiguration</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="default">default</label>
+			<label index="pages.no_content_types">Keine Inhaltstypen verfügbar</label>
+			<label index="pages.tab.configuration">Konfiguration</label>
 			<label index="pages.tab.content_settings">Content Einstellungen</label>
 			<label index="pages.tab.element_type">Elementtyp</label>
-			<label index="pages.tab.configuration">Konfiguration</label>
-			<label index="pages.no_content_types">Keine Inhaltstypen verfügbar</label>
+			<label index="tt_content.pi_flexform">Element Konfiguration</label>
+			<label index="tt_content.tx_fed_fcecontentarea">Content area</label>
+			<label index="tt_content.tx_fed_fcefile">Fluid Content type</label>
 		</languageKey>
 	</data>
 </T3locallang>
