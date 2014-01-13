@@ -44,6 +44,11 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 	/**
 	 * @var string
 	 */
+	protected $controllerName = 'Content';
+
+	/**
+	 * @var string
+	 */
 	protected $tableName = 'tt_content';
 
 	/**
@@ -114,8 +119,8 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 		if ('/' === substr($templateRootPath, -1)) {
 			$templateRootPath = substr($templateRootPath, 0, -1);
 		}
-		if (TRUE === file_exists($templateRootPath . '/Content')) {
-			$templateRootPath = $templateRootPath . '/Content';
+		if (TRUE === file_exists($templateRootPath . '/' . $this->controllerName)) {
+			$templateRootPath = $templateRootPath . '/' . $this->controllerName;
 		}
 		$templatePathAndFilename = $templateRootPath . '/' . $filename;
 		if (TRUE === isset($paths['overlays']) && TRUE === is_array($paths['overlays'])) {
@@ -123,7 +128,7 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 				if (TRUE === isset($possibleOverlayPaths['templateRootPath'])) {
 					$overlayTemplateRootPath = $possibleOverlayPaths['templateRootPath'];
 					$overlayTemplateRootPath = rtrim($overlayTemplateRootPath, '/');
-					$possibleOverlayFile = GeneralUtility::getFileAbsFileName($overlayTemplateRootPath . '/Content/' . $filename);
+					$possibleOverlayFile = GeneralUtility::getFileAbsFileName($overlayTemplateRootPath . '/' . $this->controllerName . '/' . $filename);
 					if (TRUE === file_exists($possibleOverlayFile)) {
 						$templatePathAndFilename = $possibleOverlayFile;
 						break;
