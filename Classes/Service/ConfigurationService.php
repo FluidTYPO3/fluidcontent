@@ -211,6 +211,9 @@ class Tx_Fluidcontent_Service_ConfigurationService extends Tx_Flux_Service_FluxS
 						$this->sendDisabledContentWarning($templateFilename);
 						continue;
 					}
+					if($contentConfiguration['disableWizard'] === 'TRUE') {
+						continue; 	
+					}
 					if (isset($contentConfiguration['wizardTab'])) {
 						$tabId = $this->sanitizeString($contentConfiguration['wizardTab']);
 						$wizardTabs[$tabId]['title'] = $contentConfiguration['wizardTab'];
