@@ -162,6 +162,10 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 	 * @return void
 	 */
 	public function clearCacheCommand($command = array()) {
+		// only empty the cache when "clear configuration cache is pressed"
+		if ('temp_cached' !== $command['cacheCmd'])) {
+			return;
+		}
 		if (TRUE === isset($command['uid'])) {
 			return;
 		}
