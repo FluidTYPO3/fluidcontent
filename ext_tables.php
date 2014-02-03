@@ -4,7 +4,6 @@ if (!defined ('TYPO3_MODE')) {
 }
 
 define('FLUIDCONTENT_TEMPFILE', \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName('typo3temp/.FED_CONTENT'));
-$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup'] = unserialize($_EXTCONF);
 
 \FluidTYPO3\Flux\Core::unregisterConfigurationProvider('Tx_Fed_Provider_Configuration_ContentObjectConfigurationProvider');
 \FluidTYPO3\Flux\Core::registerConfigurationProvider('FluidTYPO3\Fluidcontent\Provider\ContentProvider');
@@ -23,12 +22,6 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup'] = unserialize($_
 	),
 ), 1);
 
-if (FALSE === isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup']['removeTab']) || TRUE === (boolean) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setup']['removeTab']) {
-	$tab = NULL;
-} else {
-	$tab = '--div--;LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:pages.tab.content_settings,';
-}
-
 $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = $GLOBALS['TCA']['tt_content']['types']['text']['showitem'];
 $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = str_replace('bodytext;LLL:EXT:cms/locallang_ttc.xlf:bodytext_formlabel;;richtext:rte_transform[flag=rte_enabled|mode=ts_css],', '', $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem']);
 $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = str_replace('rte_enabled;LLL:EXT:cms/locallang_ttc.xlf:rte_enabled_formlabel,', '', $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem']);
@@ -39,5 +32,3 @@ $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'
 if (file_exists(FLUIDCONTENT_TEMPFILE)) {
 	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(file_get_contents(FLUIDCONTENT_TEMPFILE));
 }
-
-unset($tab);

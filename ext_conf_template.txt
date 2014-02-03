@@ -1,2 +1,0 @@
-  # cat=basic/enable; type=boolean; label=Relocate Fluid Content Tab: If enabled, the tab named "Content Settings" will not be used - instead, the "Element Type" and "Configuration" fields are placed under the "General" tab.
-removeTab = 1
