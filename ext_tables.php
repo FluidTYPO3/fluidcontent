@@ -29,22 +29,12 @@ if (FALSE === isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluidcontent']['setu
 	$tab = '--div--;LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:pages.tab.content_settings,';
 }
 
-$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['fluidcontent_content'] = 'pi_flexform';
-$GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
-	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.general;general,
-	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.header;header,
-	' . $tab . '
-	tx_fed_fcefile;LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:pages.tab.element_type,
-	pi_flexform;LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:pages.tab.configuration,
-	--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.appearance,
-	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.frames;frames,
-	--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,
-	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.visibility;visibility,
-	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.access;access,
-	--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.extended,
-	--palette--;LLL:EXT:cms/locallang_ttc.xml:palette.extended;extended
-	 ';
+$GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = $GLOBALS['TCA']['tt_content']['types']['text']['showitem'];
+$GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = str_replace('bodytext;LLL:EXT:cms/locallang_ttc.xlf:bodytext_formlabel;;richtext:rte_transform[flag=rte_enabled|mode=ts_css],', '', $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem']);
+$GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = str_replace('rte_enabled;LLL:EXT:cms/locallang_ttc.xlf:rte_enabled_formlabel,', '', $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem']);
+
 $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'] = 'apps-pagetree-root';
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', 'tx_fed_fcefile,pi_flexform', 'fluidcontent_content', 'after:header');
 
 if (file_exists(FLUIDCONTENT_TEMPFILE)) {
 	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(file_get_contents(FLUIDCONTENT_TEMPFILE));
