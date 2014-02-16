@@ -57,6 +57,13 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function initializeObject() {
+		$this->writeCachedConfigurationIfMissing();
+	}
+
+	/**
 	 * Get definitions of paths for FCEs defined in TypoScript
 	 *
 	 * @param string $extensionName
