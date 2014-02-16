@@ -78,11 +78,7 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 	 * @return void
 	 */
 	public function manipulateWizardItems(&$items, &$parentObject) {
-		if (FALSE === file_exists(FLUIDCONTENT_TEMPFILE)) {
-			$this->configurationService->writeCachedConfigurationIfMissing();
-			header('Location: ' . $_SERVER['REQUEST_URI']);
-			exit();
-		}
+		$this->configurationService->writeCachedConfigurationIfMissing();
 	}
 
 }

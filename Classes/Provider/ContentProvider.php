@@ -162,11 +162,12 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 	 * @return void
 	 */
 	public function clearCacheCommand($command = array()) {
-		// only empty the cache when "clear configuration cache is pressed"
-		if ('temp_cached' !== $command['cacheCmd']) {
+		// destroy the cached pageTSconfig file if the right cache is cleared
+		$majorMinor = floatval(substr(TYPO3_version, 0, 3));
+		// on 6.2, when "system cache is cleared":
+		if ($majorMinor >= 6.2 && 'system' !== $command['cacheCmd']) {
 			return;
-		}
-		if (TRUE === isset($command['uid'])) {
+		} elseif ('temp_cached' !== $command['cacheCmd']) {
 			return;
 		}
 		if (TRUE === file_exists(FLUIDCONTENT_TEMPFILE)) {
