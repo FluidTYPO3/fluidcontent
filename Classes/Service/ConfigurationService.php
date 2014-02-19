@@ -24,6 +24,7 @@ namespace FluidTYPO3\Fluidcontent\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use FluidTYPO3\Fluidcontent\Utility\CacheFileUtility;
 use FluidTYPO3\Flux\Core;
 use FluidTYPO3\Flux\Service\FluxService;
 use FluidTYPO3\Flux\Utility\PathUtility;
@@ -106,7 +107,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 * @return NULL
 	 */
 	public function writeCachedConfigurationIfMissing() {
-		if (TRUE === file_exists(FLUIDCONTENT_TEMPFILE)) {
+		if (TRUE === CacheFileUtility::getInstance()->exists()) {
 			return;
 		}
 		$templates = $this->getAllRootTypoScriptTemplates();
