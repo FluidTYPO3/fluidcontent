@@ -38,7 +38,7 @@ use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 abstract class AbstractContentController extends AbstractFluxController implements ContentControllerInterface {
 
 	/**
-	 * @var Tx_Fluidcontent_Service_ConfigurationService
+	 * @var \FluidTYPO3\Fluidcontent\Service\ConfigurationService
 	 */
 	protected $configurationService;
 
