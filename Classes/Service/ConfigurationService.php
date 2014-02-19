@@ -28,6 +28,8 @@ use FluidTYPO3\Flux\Core;
 use FluidTYPO3\Flux\Service\FluxService;
 use FluidTYPO3\Flux\Utility\PathUtility;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\StringFrontend;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -45,9 +47,22 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ConfigurationService extends FluxService implements SingletonInterface {
 
 	/**
+	 * @var CacheManager
+	 */
+	protected $manager;
+
+	/**
 	 * @var string
 	 */
 	protected $defaultIcon;
+
+	/**
+	 * @param CacheManager $manager
+	 * @return void
+	 */
+	public function injectCacheManager(CacheManager $manager) {
+		$this->manager = $manager;
+	}
 
 	/**
 	 * Constructor
@@ -106,7 +121,10 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 * @return NULL
 	 */
 	public function writeCachedConfigurationIfMissing() {
-		if (TRUE === file_exists(FLUIDCONTENT_TEMPFILE)) {
+		/** @var StringFrontend $cache */
+		$cache = $this->manager->getCache('fluidcontent');
+		$hasCache = $cache->has('pageTsConfig');
+		if (TRUE === $hasCache) {
 			return;
 		}
 		$templates = $this->getAllRootTypoScriptTemplates();
@@ -127,8 +145,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 				$this->debug($error);
 			}
 		}
-		$this->message('Wrote ' . strlen($pageTsConfig) . ' bytes of page TS configuration to ' . FLUIDCONTENT_TEMPFILE, GeneralUtility::SYSLOG_SEVERITY_INFO);
-		GeneralUtility::writeFile(FLUIDCONTENT_TEMPFILE, $pageTsConfig);
+		$cache->set('pageTsConfig', $pageTsConfig, array(), 806400);
 		return NULL;
 	}
 

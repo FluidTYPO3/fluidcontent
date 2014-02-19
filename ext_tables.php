@@ -3,8 +3,6 @@ if (!defined ('TYPO3_MODE')) {
 	die ('Access denied.');
 }
 
-define('FLUIDCONTENT_TEMPFILE', \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName('typo3temp/.FED_CONTENT'));
-
 \FluidTYPO3\Flux\Core::unregisterConfigurationProvider('Tx_Fed_Provider_Configuration_ContentObjectConfigurationProvider');
 \FluidTYPO3\Flux\Core::registerConfigurationProvider('FluidTYPO3\Fluidcontent\Provider\ContentProvider');
 
@@ -29,6 +27,12 @@ $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = str
 $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'] = 'apps-pagetree-root';
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', 'tx_fed_fcefile,pi_flexform', 'fluidcontent_content', 'after:header');
 
-if (file_exists(FLUIDCONTENT_TEMPFILE)) {
-	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(file_get_contents(FLUIDCONTENT_TEMPFILE));
+if ('BE' === TYPO3_MODE) {
+	/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
+	$cacheManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Object\ObjectManager')->get('TYPO3\CMS\Core\Cache\CacheManager');
+
+	if (TRUE === $cacheManager->getCache('fluidcontent')->has('pageTsConfig')) {
+		\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig($cacheManager->getCache('fluidcontent')->get('pageTsConfig'));
+	}
+	unset($cacheManager);
 }

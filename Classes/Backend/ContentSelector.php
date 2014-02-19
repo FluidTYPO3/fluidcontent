@@ -44,10 +44,11 @@ class ContentSelector {
 	 * @return string
 	 */
 	public function renderField(array &$parameters, &$parentObject) {
-		if (FALSE === file_exists(FLUIDCONTENT_TEMPFILE)) {
-			return 'Content configuration file does not exist - is typo3temp writable?';
-		}
-		$pageTypoScript = file_get_contents(FLUIDCONTENT_TEMPFILE);
+		/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
+		$cacheManager = GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Object\ObjectManager')->get('TYPO3\CMS\Core\Cache\CacheManager');
+		/** @var StringFrontend $cache */
+		$cache = $cacheManager->getCache('fluidcontent');
+		$pageTypoScript = TRUE === $cache->has('pageTsConfig') ? $cache->get('pageTsConfig') : array();
 		$tsParser = new TypoScriptParser();
 		$conditions = new ConditionMatcher();
 		$pageUid = GeneralUtility::_GET('id');
