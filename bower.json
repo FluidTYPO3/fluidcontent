@@ -1,0 +1,32 @@
+{
+  "name": "fluidcontent",
+  "version": "4.0.0",
+  "homepage": "http://fluidtypo3.org",
+  "description": "Create Flexible Content elements in pure fluid",
+  "main": "ext_emconf.php",
+  "dependencies": {
+    "flux": "fluidtypo3-flux#latest"
+  },
+  "keywords": [
+    "TYPO3",
+    "CMS",
+    "extension",
+    "templating",
+    "bootstrap",
+    "flux",
+    "fluidcontent",
+    "fedext",
+    "fluid"
+  ],
+  "authors": [
+    "FluidTYPO3 Team"
+  ],
+  "license": "GPL-2.0+",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
