@@ -191,13 +191,12 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 	 * @return array
 	 */
 	protected function appendToWhiteAndBlacklistFromComponent(FormInterface $component, array $whitelist, array $blacklist) {
-		$allowed = $component->getVariable('Fluidcontent.allowedContentTypes');
-		if (NULL !== $allowed) {
-			$whitelist = array_merge($whitelist, GeneralUtility::trimExplode(',', $allowed));
+		$conf = $component->getVariable('Fluidcontent');
+		if (NULL !== $conf['allowedContentTypes']) {
+			$whitelist = array_merge($whitelist, GeneralUtility::trimExplode(',', $conf['allowedContentTypes']));
 		}
-		$denied = $component->getVariable('Fluidcontent.deniedContentTypes');
-		if (NULL !== $denied) {
-			$blacklist = array_merge($blacklist, GeneralUtility::trimExplode(',', $denied));
+		if (NULL !== $conf['deniedContentTypes']) {
+			$blacklist = array_merge($blacklist, GeneralUtility::trimExplode(',', $conf['deniedContentTypes']));
 		}
 		return array($whitelist, $blacklist);
 	}
