@@ -24,6 +24,7 @@ namespace FluidTYPO3\Fluidcontent\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
 use FluidTYPO3\Flux\Configuration\ConfigurationManager;
 use FluidTYPO3\Flux\Core;
 use FluidTYPO3\Flux\Form;
@@ -54,6 +55,11 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	protected $manager;
 
 	/**
+	 * @var ReflectionService
+	 */
+	protected $recordService;
+
+	/**
 	 * @var string
 	 */
 	protected $defaultIcon;
@@ -73,6 +79,14 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 */
 	public function injectCacheManager(CacheManager $manager) {
 		$this->manager = $manager;
+	}
+
+	/**
+	 * @param RecordService $recordService
+	 * @return void
+	 */
+	public function injectRecordService(RecordService $recordService) {
+		$this->recordService = $recordService;
 	}
 
 	/**
@@ -244,17 +258,12 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 * @return array
 	 */
 	protected function getAllRootTypoScriptTemplates() {
-		static $statement = NULL;
-		if (NULL === $statement) {
-			$statement = $GLOBALS['TYPO3_DB']->prepare_SELECTquery('pid', 'sys_template', 'deleted = 0 AND hidden = 0 AND starttime <= :starttime AND (endtime = 0 OR endtime > :endtime)');
-		}
-
-		$statement->bindValue(':starttime', $GLOBALS['SIM_ACCESS_TIME']);
-		$statement->bindValue(':endtime', $GLOBALS['SIM_ACCESS_TIME']);
-		$statement->execute();
-		$rootTypoScriptTemplates = $statement->fetchAll();
-		$statement->free();
-
+		$condition = 'deleted = 0 AND hidden = 0 AND starttime <= :starttime AND (endtime = 0 OR endtime > :endtime)';
+		$paramters = array(
+			':starttime' => $GLOBALS['SIM_ACCESS_TIME'],
+			':endtime' => $GLOBALS['SIM_ACCESS_TIME']
+		);
+		$rootTypoScriptTemplates = $this->recordService->preparedGet('sys_template', 'pid', $condition, $paramters);
 		return $rootTypoScriptTemplates;
 	}
 

@@ -26,6 +26,7 @@ namespace FluidTYPO3\Fluidcontent\Hooks;
 
 use FluidTYPO3\Fluidcontent\Service\ConfigurationService;
 use FluidTYPO3\Flux\Form\FormInterface;
+use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
 use TYPO3\CMS\Backend\Wizard\NewContentElementWizardHookInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
@@ -43,6 +44,11 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 	protected $configurationService;
 
 	/**
+	 * @var WorkspacesAwareRecordService
+	 */
+	protected $recordService;
+
+	/**
 	 * @var ObjectManagerInterface
 	 */
 	protected $objectManager;
@@ -53,6 +59,14 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 	 */
 	public function injectConfigurationService(ConfigurationService $configurationService) {
 		$this->configurationService = $configurationService;
+	}
+
+	/**
+	 * @param WorkspacesAwareRecordService $recordService
+	 * @return void
+	 */
+	public function injectRecordService(WorkspacesAwareRecordService $recordService) {
+		$this->recordService = $recordService;
 	}
 
 	/**
@@ -71,6 +85,8 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 		$this->injectObjectManager($objectManager);
 		$configurationService = $this->objectManager->get('FluidTYPO3\Fluidcontent\Service\ConfigurationService');
 		$this->injectConfigurationService($configurationService);
+		$recordService = $this->objectManager->get('FluidTYPO3\Fluidcontent\Service\WorkspacesAwareRecordService');
+		$this->injectRecordService($recordService);
 	}
 
 	/**
@@ -94,7 +110,7 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 		// if a Provider is registered for the "pages" table, try to get a Grid from it. If the Grid
 		// returned contains a Column which matches the desired colPos value, attempt to read a list
 		// of allowed/denied content element types from it.
-		$pageRecord = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('*', 'pages', "uid = '" . $parentObject->id . "'");
+		$pageRecord = $this->recordService->getSingle('pages', '*', $parentObject->id);
 		$pageProviders = $this->configurationService->resolveConfigurationProviders('pages', NULL, $pageRecord);
 		foreach ($pageProviders as $pageProvider) {
 			$grid = $pageProvider->getGrid($pageRecord);
@@ -116,7 +132,7 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 			// pasting after another element means we should try to resolve the Flux content relation
 			// from that element instead of GET parameters (clicked: "create new" icon after other element)
 			$relativeRecordUid = abs($parentObject->uid_pid);
-			$relativeRecord = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('*', 'tt_content', "uid = '" . $relativeRecordUid . "'");
+			$relativeRecord = $this->recordService->getSingle('tt_content', '*', $relativeRecordUid);
 			$fluxAreaName = $relativeRecord['tx_flux_column'];
 		} elseif (TRUE === isset($defaultValues['tt_content']['tx_flux_column'])) {
 			// attempt to read the target Flux content area from GET parameters (clicked: "create new" icon
@@ -130,7 +146,7 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 		// (admitted, that's quite a mouthful - but it's not that different from reading the values from
 		// a page template like above; it's the same principle).
 		if (0 < $relativeRecordUid && FALSE === empty($fluxAreaName)) {
-			$relativeRecord = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('*', 'tt_content', "uid = '" . $relativeRecordUid . "'");
+			$relativeRecord = $this->recordService->getSingle('tt_content', '*', $relativeRecordUid);
 			$contentProviders = $this->configurationService->resolveConfigurationProviders('tt_content', NULL, $relativeRecord);
 			foreach ($contentProviders as $contentProvider) {
 				$grid = $contentProvider->getGrid($relativeRecord);
