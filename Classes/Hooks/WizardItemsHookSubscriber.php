@@ -85,7 +85,7 @@ class WizardItemsHookSubscriber implements NewContentElementWizardHookInterface 
 		$this->injectObjectManager($objectManager);
 		$configurationService = $this->objectManager->get('FluidTYPO3\Fluidcontent\Service\ConfigurationService');
 		$this->injectConfigurationService($configurationService);
-		$recordService = $this->objectManager->get('FluidTYPO3\Fluidcontent\Service\WorkspacesAwareRecordService');
+		$recordService = $this->objectManager->get('FluidTYPO3\Flux\Service\WorkspacesAwareRecordService');
 		$this->injectRecordService($recordService);
 	}
 
