@@ -31,7 +31,8 @@ $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = str
 $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = str_replace('rte_enabled;LLL:EXT:cms/locallang_ttc.xml:rte_enabled_formlabel,', '', $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem']);
 
 $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'] = 'apps-pagetree-root';
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', 'tx_fed_fcefile,pi_flexform', 'fluidcontent_content', 'after:header');
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette('tt_content', 'general', 'tx_fed_fcefile', 'after:CType');
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', 'pi_flexform', 'fluidcontent_content', 'after:header');
 
 if ('BE' === TYPO3_MODE) {
 	/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
