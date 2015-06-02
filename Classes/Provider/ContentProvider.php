@@ -152,8 +152,7 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 		$fileReference = $this->getControllerActionReferenceFromRecord($row);
 		$identifier = explode(':', $fileReference);
 		$actionName = array_pop($identifier);
-		$actionName = basename($actionName, '.html');
-		$actionName{0} = strtolower($actionName{0});
+		$actionName = lcfirst(basename($actionName, '.html'));
 		return $actionName;
 	}
 
