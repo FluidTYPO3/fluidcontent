@@ -22,13 +22,13 @@ class ContentSelectorTest extends UnitTestCase {
 	 * @return void
 	 */
 	public function setUp() {
-		$GLOBALS['LANG'] = $this->getMock('TYPO3\\CMS\\Lang\\LanguageService', array('sL'));
-		$statement = $this->getMock('TYPO3\\CMS\\Core\\Database\\PreparedStatement', array('execute', 'free', 'fetch'), array(), '', FALSE);
+		$GLOBALS['LANG'] = $this->getMock('TYPO3\\CMS\\Lang\\LanguageService', ['sL']);
+		$statement = $this->getMock('TYPO3\\CMS\\Core\\Database\\PreparedStatement', ['execute', 'free', 'fetch'], [], '', FALSE);
 		$statement->expects($this->any())->method('execute')->willReturn(FALSE);
 		$statement->expects($this->any())->method('fetch')->willReturn(FALSE);
 		$statement->expects($this->any())->method('free');
 		$GLOBALS['TYPO3_DB'] = $this->getMock('TYPO3\\CMS\\Core\\Database\\DatabaseConnection',
-			array('exec_SELECTquery', 'prepare_SELECTquery'), array(), '', FALSE);
+			['exec_SELECTquery', 'prepare_SELECTquery'], [], '', FALSE);
 		$GLOBALS['TYPO3_DB']->expects($this->any())->method('exec_SELECTquery')->willReturn(FALSE);
 		$GLOBALS['TYPO3_DB']->expects($this->any())->method('prepare_SELECTquery')->willReturn($statement);
 	}
@@ -47,10 +47,10 @@ class ContentSelectorTest extends UnitTestCase {
 	 */
 	public function testRenderFieldCreatesSelectTag() {
 		$instance = new ContentSelector();
-		$parameters = array(
+		$parameters = [
 			'itemFormElName' => 'foobar',
 			'itemFormElValue' => 'foovalue'
-		);
+		];
 		$parent = 'unused';
 		$rendered = $instance->renderField($parameters, $parent);
 		$this->assertStringStartsWith('<div', $rendered);
@@ -63,21 +63,21 @@ class ContentSelectorTest extends UnitTestCase {
 	public function testRenderFieldCreatesExpectedOptions() {
 		$configurationService = $this->getMock(
 			'FluidTYPO3\\Fluidcontent\\Service\\ConfigurationService',
-			array('getContentElementFormInstances')
+			['getContentElementFormInstances']
 		);
-		$forms = array(
-			'myextension' => array(
-				Form::create(array('id' => 'test1', 'label' => 'Test1', 'options' => array('contentElementId' => 'test1'))),
-				Form::create(array('id' => 'test2', 'label' => 'Test2', 'options' => array('contentElementId' => 'test2')))
-			)
-		);
-		$parameters = array(
+		$forms = [
+			'myextension' => [
+				Form::create(['id' => 'test1', 'label' => 'Test1', 'options' => ['contentElementId' => 'test1']]),
+				Form::create(['id' => 'test2', 'label' => 'Test2', 'options' => ['contentElementId' => 'test2']])
+			]
+		];
+		$parameters = [
 			'itemFormElName' => 'foobar',
 			'itemFormElValue' => 'test2'
-		);
+		];
 		$parent = 'unused';
 		$configurationService->expects($this->once())->method('getContentElementFormInstances')->willReturn($forms);
-		$instance = $this->getMock('FluidTYPO3\\Fluidcontent\\Backend\\ContentSelector', array('getConfigurationService'));
+		$instance = $this->getMock('FluidTYPO3\\Fluidcontent\\Backend\\ContentSelector', ['getConfigurationService']);
 		$instance->expects($this->once())->method('getConfigurationService')->willReturn($configurationService);
 		$rendered = $instance->renderField($parameters, $parent);
 		$this->assertContains('<optgroup label="myextension">', $rendered);

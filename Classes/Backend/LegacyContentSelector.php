@@ -18,7 +18,7 @@ class LegacyContentSelector extends ContentSelector {
 	/**
 	 * @var array
 	 */
-	protected $templates = array(
+	protected $templates = [
 		'select' => '<div><select
 			style="background: #fff url(%s) 5px 50%% / 16px 16px no-repeat; padding-top: 2px; padding-left: 24px;"
 			name="%s"
@@ -30,6 +30,6 @@ class LegacyContentSelector extends ContentSelector {
 			value="%s"%s>%s</option>',
 		'optionEmpty' => '<option value="">%s</option>',
 		'optgroup' => '<optgroup label="%s">%s</optgroup>'
-	);
+	];
 
 }

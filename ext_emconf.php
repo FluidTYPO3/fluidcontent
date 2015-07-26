@@ -10,7 +10,7 @@
  * writing. "version" and "dependencies" must not be touched!
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = array(
+$EM_CONF[$_EXTKEY] = [
 	'title' => 'Fluid Content Engine',
 	'description' => 'Fluid Content Element engine - integrates extremely compact and highly dynamic content element templates written in Fluid. See: https://github.com/FluidTYPO3/fluidcontent',
 	'category' => 'misc',
@@ -30,20 +30,20 @@ $EM_CONF[$_EXTKEY] = array(
 	'clearCacheOnLoad' => 1,
 	'lockType' => '',
 	'version' => '4.2.4',
-	'constraints' => array(
-		'depends' => array(
+	'constraints' => [
+		'depends' => [
 			'typo3' => '6.1.0-7.1.99',
 			'cms' => '',
 			'flux' => '7.2.0-7.2.99',
-		),
-		'conflicts' => array(
-		),
-		'suggests' => array(
-		),
-	),
-	'suggests' => array(
-	),
+		],
+		'conflicts' => [
+		],
+		'suggests' => [
+		],
+	],
+	'suggests' => [
+	],
 	'_md5_values_when_last_written' => '',
-);
+];
 
 ?>

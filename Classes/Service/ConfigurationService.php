@@ -108,7 +108,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 			return $this->getViewConfigurationForExtensionName($extensionName);
 		}
 		$registeredExtensionKeys = (array) Core::getRegisteredProviderExtensionKeys('Content');
-		$configuration = array();
+		$configuration = [];
 		foreach ($registeredExtensionKeys as $registeredExtensionKey) {
 			$configuration[$registeredExtensionKey] = $this->getContentConfiguration($registeredExtensionKey);
 		}
@@ -129,7 +129,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 				$pageUid = (integer) $template['pid'];
 				$pageTsConfig .= $this->renderPageTypoScriptForPageUid($pageUid);
 			}
-			$cache->set('pageTsConfig', $pageTsConfig, array(), 86400);
+			$cache->set('pageTsConfig', $pageTsConfig, [], 86400);
 		}
 	}
 
@@ -188,10 +188,10 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 */
 	protected function getAllRootTypoScriptTemplates() {
 		$condition = 'deleted = 0 AND hidden = 0 AND starttime <= :starttime AND (endtime = 0 OR endtime > :endtime)';
-		$parameters = array(
+		$parameters = [
 			':starttime' => $GLOBALS['SIM_ACCESS_TIME'],
 			':endtime' => $GLOBALS['SIM_ACCESS_TIME']
-		);
+		];
 		$rootTypoScriptTemplates = $this->recordService->preparedGet('sys_template', 'pid', $condition, $parameters);
 		return $rootTypoScriptTemplates;
 	}
@@ -205,7 +205,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 * @return array
 	 */
 	protected function buildAllWizardTabGroups($allTemplatePaths) {
-		$wizardTabs = array();
+		$wizardTabs = [];
 		$forms = $this->getContentElementFormInstances();
 		foreach ($forms as $extensionKey => $formSet) {
 			$formSet = $this->sortObjectsByProperty($formSet, 'options.Fluidcontent.sorting', 'ASC');
@@ -230,11 +230,11 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 * @return Form[][]
 	 */
 	public function getContentElementFormInstances() {
-		$elements = array();
+		$elements = [];
 		$allTemplatePaths = $this->getContentConfiguration();
 		$controllerName = 'Content';
 		foreach ($allTemplatePaths as $registeredExtensionKey => $templatePathSet) {
-			$files = array();
+			$files = [];
 			$extensionKey = TRUE === isset($templatePathSet['extensionKey']) ? $templatePathSet['extensionKey'] : $registeredExtensionKey;
 			$extensionKey = ExtensionNamingUtility::getExtensionKey($extensionKey);
 			$templatePaths = new TemplatePaths($templatePathSet);
