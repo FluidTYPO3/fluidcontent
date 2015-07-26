@@ -24,13 +24,13 @@ class ContentProviderTest extends UnitTestCase {
 	protected function createProviderInstance() {
 		$GLOBALS['TYPO3_DB'] = $this->getMock(
 			'TYPO3\\CMS\\Core\\Database\\DatabaseConnection',
-			array('prepare_SELECTquery'),
-			array(), '', FALSE
+			['prepare_SELECTquery'],
+			[], '', FALSE
 		);
 		$preparedStatementMock = $this->getMock(
 			'TYPO3\\CMS\\Core\\Database\\PreparedStatement',
-			array('execute', 'fetch', 'free'),
-			array(), '', FALSE
+			['execute', 'fetch', 'free'],
+			[], '', FALSE
 		);
 		$preparedStatementMock->expects($this->any())->method('execute')->willReturn(FALSE);
 		$preparedStatementMock->expects($this->any())->method('free');
@@ -64,10 +64,10 @@ class ContentProviderTest extends UnitTestCase {
 	public function getTemplatePathAndFilenameTestValues() {
 		$path = ExtensionManagementUtility::extPath('fluidcontent');
 		$file = $path . 'Resources/Private/Templates/Content/Index.html';
-		return array(
-			array(array('uid' => 0), $file),
-			array(array('tx_fed_fcefile' => 'test:Test.html'), NULL),
-		);
+		return [
+			[['uid' => 0], $file],
+			[['tx_fed_fcefile' => 'test:Test.html'], NULL],
+		];
 	}
 
 	/**
@@ -78,7 +78,7 @@ class ContentProviderTest extends UnitTestCase {
 	public function testGetTemplatePathAndFilenameWithOverride($template, $expected) {
 		$instance = $this->createProviderInstance();
 		$instance->setTemplatePathAndFilename($template);
-		$result = $instance->getTemplatePathAndFilename(array());
+		$result = $instance->getTemplatePathAndFilename([]);
 		$this->assertEquals($expected, $result);
 	}
 
@@ -87,28 +87,28 @@ class ContentProviderTest extends UnitTestCase {
 	 */
 	public function getTemplatePathAndFilenameOverrideTestValues() {
 		$path = ExtensionManagementUtility::extPath('fluidcontent');
-		return array(
-			array(
+		return [
+			[
 				'EXT:fluidcontent/Resources/Private/Templates/Content/Index.html',
 				$path . 'Resources/Private/Templates/Content/Index.html',
-			),
-			array(
+			],
+			[
 				$path . 'Resources/Private/Templates/Content/Index.html',
 				$path . 'Resources/Private/Templates/Content/Index.html',
-			),
-			array(
+			],
+			[
 				'EXT:fluidcontent/Resources/Private/Templates/Content/Error.html',
 				$path . 'Resources/Private/Templates/Content/Error.html',
-			),
-			array(
+			],
+			[
 				$path . 'Resources/Private/Templates/Content/Error.html',
 				$path . 'Resources/Private/Templates/Content/Error.html',
-			),
-			array(
+			],
+			[
 				$path . '/Does/Not/Exist.html',
 				NULL,
-			)
-		);
+			]
+		];
 	}
 
 	/**
@@ -126,10 +126,10 @@ class ContentProviderTest extends UnitTestCase {
 	 * @return array
 	 */
 	public function getControllerExtensionKeyFromRecordTestValues() {
-		return array(
-			array(array('uid' => 0), 'Fluidcontent'),
-			array(array('tx_fed_fcefile' => 'test:test'), 'test'),
-		);
+		return [
+			[['uid' => 0], 'Fluidcontent'],
+			[['tx_fed_fcefile' => 'test:test'], 'test'],
+		];
 	}
 
 	/**
@@ -147,10 +147,10 @@ class ContentProviderTest extends UnitTestCase {
 	 * @return array
 	 */
 	public function getControllerActionFromRecordTestValues() {
-		return array(
-			array(array('uid' => 0), 'index'),
-			array(array('tx_fed_fcefile' => 'test:test'), 'test'),
-		);
+		return [
+			[['uid' => 0], 'index'],
+			[['tx_fed_fcefile' => 'test:test'], 'test'],
+		];
 	}
 
 	/**
@@ -168,11 +168,11 @@ class ContentProviderTest extends UnitTestCase {
 	 * @return array
 	 */
 	public function getPriorityTestValues() {
-		return array(
-			array(array('uid' => 0), 0),
-			array(array('tx_fed_fcefile' => 'test:test'), 0),
-			array(array('tx_fed_fcefile' => 'test:test', 'CType' => 'fluidcontent_content'), 100),
-		);
+		return [
+			[['uid' => 0], 0],
+			[['tx_fed_fcefile' => 'test:test'], 0],
+			[['tx_fed_fcefile' => 'test:test', 'CType' => 'fluidcontent_content'], 100],
+		];
 	}
 
 }

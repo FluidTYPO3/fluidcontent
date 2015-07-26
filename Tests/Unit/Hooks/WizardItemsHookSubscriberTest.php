@@ -24,13 +24,13 @@ class WizardItemsHookSubscriberTest extends UnitTestCase {
 	public function testCreatesInstance() {
 		$GLOBALS['TYPO3_DB'] = $this->getMock(
 			'TYPO3\\CMS\\Core\\Database\\DatabaseConnection',
-			array('prepare_SELECTquery'),
-			array(), '', FALSE
+			['prepare_SELECTquery'],
+			[], '', FALSE
 		);
 		$preparedStatementMock = $this->getMock(
 			'TYPO3\\CMS\\Core\\Database\\PreparedStatement',
-			array('execute', 'fetch', 'free'),
-			array(), '', FALSE
+			['execute', 'fetch', 'free'],
+			[], '', FALSE
 		);
 		$preparedStatementMock->expects($this->any())->method('execute')->willReturn(FALSE);
 		$preparedStatementMock->expects($this->any())->method('free');
@@ -52,7 +52,7 @@ class WizardItemsHookSubscriberTest extends UnitTestCase {
 	public function processesWizardItems($items, $whitelist, $blacklist, $expectedList) {
 		$objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
 		$instance = $objectManager->get('FluidTYPO3\\Fluidcontent\\Hooks\\WizardItemsHookSubscriber');
-		$emulatedPageAndContentRecord = array('uid' => 1, 'tx_flux_column' => 'name');
+		$emulatedPageAndContentRecord = ['uid' => 1, 'tx_flux_column' => 'name'];
 		$controller = new NewContentElementController();
 		$controller->colPos = 0;
 		$controller->uid_pid = -1;
@@ -61,25 +61,25 @@ class WizardItemsHookSubscriberTest extends UnitTestCase {
 		$column = new Column();
 		$column->setColumnPosition(0);
 		$column->setName('name');
-		$column->setVariable('Fluidcontent', array(
+		$column->setVariable('Fluidcontent', [
 			'allowedContentTypes' => $whitelist,
 			'deniedContentTypes' => $blacklist
-		));
+		]);
 		$row->add($column);
 		$grid->add($row);
 		$provider1 = $objectManager->get('FluidTYPO3\\Flux\\Provider\\Provider');
-		$provider1->setTemplatePaths(array());
-		$provider1->setTemplateVariables(array());
+		$provider1->setTemplatePaths([]);
+		$provider1->setTemplateVariables([]);
 		$provider1->setGrid($grid);
-		$provider2 = $this->getMock('FluidTYPO3\\Flux\\Provider\\Provider', array('getGrid'));
+		$provider2 = $this->getMock('FluidTYPO3\\Flux\\Provider\\Provider', ['getGrid']);
 		$provider2->expects($this->exactly(1))->method('getGrid')->will($this->returnValue(NULL));
 		$configurationService = $this->getMock(
 			'FluidTYPO3\\Fluidcontent\\Service\\ConfigurationService',
-			array('resolveConfigurationProviders', 'writeCachedConfigurationIfMissing')
+			['resolveConfigurationProviders', 'writeCachedConfigurationIfMissing']
 		);
 		$configurationService->expects($this->exactly(1))->method('resolveConfigurationProviders')
-			->will($this->returnValue(array($provider1, $provider2)));
-		$recordService = $this->getMock('FluidTYPO3\\Flux\\Service\\WorkspacesAwareRecordService', array('getSingle'));
+			->will($this->returnValue([$provider1, $provider2]));
+		$recordService = $this->getMock('FluidTYPO3\\Flux\\Service\\WorkspacesAwareRecordService', ['getSingle']);
 		$recordService->expects($this->exactly(2))->method('getSingle')->will($this->returnValue($emulatedPageAndContentRecord));
 		$instance->injectConfigurationService($configurationService);
 		$instance->injectRecordService($recordService);
@@ -91,47 +91,47 @@ class WizardItemsHookSubscriberTest extends UnitTestCase {
 	 * @return array
 	 */
 	public function getTestElementsWhiteAndBlackListsAndExpectedList() {
-		$items = array(
-			'plugins' => array('title' => 'Nice header'),
-			'plugins_test1' => array(
-				'tt_content_defValues' => array('CType' => 'fluidcontent_content', 'tx_fed_fcefile' => 'test1:test1')
-			),
-			'plugins_test2' => array(
-				'tt_content_defValues' => array('CType' => 'fluidcontent_content', 'tx_fed_fcefile' => 'test2:test2')
-			)
-		);
-		return array(
-			array(
+		$items = [
+			'plugins' => ['title' => 'Nice header'],
+			'plugins_test1' => [
+				'tt_content_defValues' => ['CType' => 'fluidcontent_content', 'tx_fed_fcefile' => 'test1:test1']
+			],
+			'plugins_test2' => [
+				'tt_content_defValues' => ['CType' => 'fluidcontent_content', 'tx_fed_fcefile' => 'test2:test2']
+			]
+		];
+		return [
+			[
 				$items,
 				NULL,
 				NULL,
 				$items,
-			),
-			array(
+			],
+			[
 				$items,
 				'test1:test1',
 				NULL,
-				array(
-					'plugins' => array('title' => 'Nice header'),
+				[
+					'plugins' => ['title' => 'Nice header'],
 					'plugins_test1' => $items['plugins_test1']
-				),
-			),
-			array(
+				],
+			],
+			[
 				$items,
 				NULL,
 				'test1:test1',
-				array(
-					'plugins' => array('title' => 'Nice header'),
+				[
+					'plugins' => ['title' => 'Nice header'],
 					'plugins_test2' => $items['plugins_test2']
-				),
-			),
-			array(
+				],
+			],
+			[
 				$items,
 				'test1:test1',
 				'test1:test1',
-				array(),
-			),
-		);
+				[],
+			],
+		];
 	}
 
 	public function testManipulateWizardItemsCallsExpectedMethodSequenceWithoutProviders() {
@@ -139,19 +139,19 @@ class WizardItemsHookSubscriberTest extends UnitTestCase {
 			->get('FluidTYPO3\\Fluidcontent\\Hooks\\WizardItemsHookSubscriber');
 		$configurationService = $this->getMock(
 			'FluidTYPO3\\Fluidcontent\\Service\\ConfigurationService',
-			array('writeCachedConfigurationIfMissing', 'resolveConfigurationProviders')
+			['writeCachedConfigurationIfMissing', 'resolveConfigurationProviders']
 		);
 		$recordService = $this->getMock(
 			'FluidTYPO3\\Flux\\Service\\WorkspacesAwareRecordService',
-			array('getSingle')
+			['getSingle']
 		);
 		$configurationService->expects($this->once())->method('writeCachedConfigurationIfMissing');
-		$configurationService->expects($this->once())->method('resolveConfigurationProviders')->willReturn(array());
+		$configurationService->expects($this->once())->method('resolveConfigurationProviders')->willReturn([]);
 		$recordService->expects($this->once())->method('getSingle')->willReturn(NULL);
 		$instance->injectConfigurationService($configurationService);
 		$instance->injectRecordService($recordService);
 		$parent = new NewContentElementController();
-		$items = array();
+		$items = [];
 		$instance->manipulateWizardItems($items, $parent);
 	}
 
@@ -160,26 +160,26 @@ class WizardItemsHookSubscriberTest extends UnitTestCase {
 			->get('FluidTYPO3\\Fluidcontent\\Hooks\\WizardItemsHookSubscriber');
 		$configurationService = $this->getMock(
 			'FluidTYPO3\\Fluidcontent\\Service\\ConfigurationService',
-			array('writeCachedConfigurationIfMissing', 'resolveConfigurationProviders')
+			['writeCachedConfigurationIfMissing', 'resolveConfigurationProviders']
 		);
 		$recordService = $this->getMock(
 			'FluidTYPO3\\Flux\\Service\\WorkspacesAwareRecordService',
-			array('getSingle')
+			['getSingle']
 		);
-		$record = array('uid' => 0);
+		$record = ['uid' => 0];
 		$provider1 = $this->getMockProvider($record);
 		$provider2 = $this->getMockProvider($record);
 		$provider3 = $this->getMockProvider($record, FALSE);
 		$configurationService->expects($this->once())->method('writeCachedConfigurationIfMissing');
-		$configurationService->expects($this->once())->method('resolveConfigurationProviders')->willReturn(array(
+		$configurationService->expects($this->once())->method('resolveConfigurationProviders')->willReturn([
 			$provider1, $provider2, $provider3
-		));
+		]);
 		$recordService->expects($this->once())->method('getSingle')->willReturn($record);
 		$instance->injectConfigurationService($configurationService);
 		$instance->injectRecordService($recordService);
 		$parent = new NewContentElementController();
 		$parent->colPos = 1;
-		$items = array();
+		$items = [];
 		$instance->manipulateWizardItems($items, $parent);
 	}
 
@@ -189,13 +189,13 @@ class WizardItemsHookSubscriberTest extends UnitTestCase {
 	 * @return Provider
 	 */
 	protected function getMockProvider(array $record, $withGrid = TRUE) {
-		$instance = $this->getMock('FluidTYPO3\\Flux\\Provider\\Provider', array('getViewVariables', 'getGrid'));
+		$instance = $this->getMock('FluidTYPO3\\Flux\\Provider\\Provider', ['getViewVariables', 'getGrid']);
 		if (FALSE === $withGrid) {
 			$instance->expects($this->any())->method('getGrid')->willReturn($grid);
 		} else {
 			$grid = Grid::create();
 			$grid->createContainer('Row', 'row')->createContainer('Column', 'column')->setColumnPosition(1)
-				->setVariable('Fluidcontent', array('deniedContentTypes' => 'html', 'allowedContentTypes' => 'text'));
+				->setVariable('Fluidcontent', ['deniedContentTypes' => 'html', 'allowedContentTypes' => 'text']);
 			$instance->expects($this->any())->method('getGrid')->willReturn($grid);
 		}
 		return $instance;

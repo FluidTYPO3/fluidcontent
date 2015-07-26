@@ -97,6 +97,6 @@ class WizardItemsHookSubscriber extends FluxWizardItemsHookSubscriber implements
 		if (NULL !== $denied) {
 			$blacklist = array_merge($blacklist, GeneralUtility::trimExplode(',', $denied));
 		}
-		return array($whitelist, $blacklist);
+		return [$whitelist, $blacklist];
 	}
 }

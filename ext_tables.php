@@ -5,11 +5,11 @@ if (!defined ('TYPO3_MODE')) {
 
 \FluidTYPO3\Flux\Core::registerConfigurationProvider('FluidTYPO3\Fluidcontent\Provider\ContentProvider');
 
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPlugin(array(
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPlugin([
 	'Fluid Content',
 	'fluidcontent_content',
 	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('fluidcontent') . 'ext_icon.gif'
-), \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT, 'FluidTYPO3.Fluidcontent');
+], \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT, 'FluidTYPO3.Fluidcontent');
 
 if ('BE' === TYPO3_MODE) {
 	/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */

@@ -21,7 +21,7 @@ class ContentSelector {
 	/**
 	 * @var array
 	 */
-	protected $templates = array(
+	protected $templates = [
 		'select' => '<div class="form-control-wrap"><div class="input-group">
 			<div class="input-group-addon input-group-icon t3js-formengine-select-prepend"><img src="%s" alt="" /></div>
 			<select name="%s" class="form-control form-control-adapt"
@@ -34,7 +34,7 @@ class ContentSelector {
 		'option' => '<option data-icon="%s" value="%s"%s>%s</option>',
 		'optionEmpty' => '<option value="">%s</option>',
 		'optgroup' => '<optgroup label="%s">%s</optgroup>'
-	);
+	];
 
 	/**
 	 * Render a Flexible Content Element type selection field
