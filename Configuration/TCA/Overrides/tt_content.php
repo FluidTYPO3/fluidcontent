@@ -37,3 +37,5 @@ $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette('tt_content', 'general', 'tx_fed_fcefile', 'after:CType');
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', 'pi_flexform', 'fluidcontent_content', 'after:header');
 
+// Hide child records if the content element is not a fluidcontent element.
+$GLOBALS['TCA']['tt_content']['columns']['tx_flux_children']['displayCond'] = 'FIELD:CType:=:fluidcontent_content';
