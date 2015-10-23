@@ -22,6 +22,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class ConfigurationServiceTest extends UnitTestCase {
 
 	public function testGetContentConfiguration() {
+
 		Core::registerProviderExtensionKey('FluidTYPO3.Fluidcontent', 'Content');
 		/** @var ConfigurationService $service */
 		$service = $this->getMock('FluidTYPO3\\Fluidcontent\\Service\\ConfigurationService', array('dummy'), array(), '', FALSE);
@@ -99,8 +100,9 @@ class ConfigurationServiceTest extends UnitTestCase {
 		$form = Form::create();
 		$form->setLabel('bazlabel');
 		$form->setDescription('foobar');
+		$wizardTabService = GeneralUtility::makeInstance('FluidTYPO3\\Fluidcontent\\Service\\LegacyWizardTabService');
 		$service = $this->getMock('FluidTYPO3\\Fluidcontent\\Service\\ConfigurationService', array(), array(), '', FALSE);
-		$result = $this->callInaccessibleMethod($service, 'buildWizardTabItem', 'tabid', 'id', $form, '');
+		$result = $this->callInaccessibleMethod($wizardTabService, 'buildWizardTabItem', $service, 'tabid', 'id', $form, '');
 		$this->assertContains('tabid.elements.id', $result);
 		$this->assertContains('title = bazlabel', $result);
 		$this->assertContains('description = foobar', $result);
@@ -151,6 +153,14 @@ class ConfigurationServiceTest extends UnitTestCase {
 	 * @return void
 	 */
 	public function testBuildAllWizardTabGroups() {
+		\FluidTYPO3\Flux\Utility\CompatibilityRegistry::register(
+			'FluidTYPO3\\Fluidcontent\\Service\\WizardTabService',
+			array(
+				'6.2.0' => 'FluidTYPO3\\Fluidcontent\\Service\\LegacyWizardTabService',
+				'7.5.0' => 'FluidTYPO3\\Fluidcontent\\Service\\WizardTabService'
+			)
+		);
+
 		$class = substr(str_replace('Tests\\Unit\\', '', get_class($this)), 0, -4);
 		/** @var ConfigurationService|\PHPUnit_Framework_MockObject_MockObject $mock */
 		$mock = $this->getMock($class, array('getContentConfiguration', 'message'));

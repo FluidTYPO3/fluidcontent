@@ -11,6 +11,7 @@ namespace FluidTYPO3\Fluidcontent\Service;
 use FluidTYPO3\Flux\Configuration\ConfigurationManager;
 use FluidTYPO3\Flux\Core;
 use FluidTYPO3\Flux\Form;
+use FluidTYPO3\Flux\Utility\CompatibilityRegistry;
 use FluidTYPO3\Flux\View\TemplatePaths;
 use FluidTYPO3\Flux\View\ViewContext;
 use FluidTYPO3\Flux\Service\FluxService;
@@ -95,6 +96,13 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 		$this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['fluidcontent']);
 		$this->extConf['iconWidth'] = $this->extConf['iconWidth'] ? : self::ICON_WIDTH;
 		$this->extConf['iconHeight'] = $this->extConf['iconHeight'] ? : self::ICON_HEIGHT;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getExtConf() {
+		return $this->extConf;
 	}
 
 	/**
@@ -230,6 +238,8 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	protected function buildAllWizardTabGroups($allTemplatePaths) {
 		$wizardTabs = array();
 		$forms = $this->getContentElementFormInstances();
+		/** @var WizardTabService $wizardTabServiceClass */
+		$wizardTabServiceClass = GeneralUtility::makeInstance(CompatibilityRegistry::get('FluidTYPO3\\Fluidcontent\\Service\\WizardTabService'));
 		foreach ($forms as $extensionKey => $formSet) {
 			$formSet = $this->sortObjectsByProperty($formSet, 'options.Fluidcontent.sorting', 'ASC');
 			foreach ($formSet as $id => $form) {
@@ -241,7 +251,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 				$tabId = $this->sanitizeString($group);
 				$wizardTabs[$tabId]['title'] = $group;
 				$contentElementId = $form->getOption('contentElementId');
-				$elementTsConfig = $this->buildWizardTabItem($tabId, $id, $form, $contentElementId);
+				$elementTsConfig = $wizardTabServiceClass->buildWizardTabItem($this, $tabId, $id, $form, $contentElementId);
 				$wizardTabs[$tabId]['elements'][$id] = $elementTsConfig;
 				$wizardTabs[$tabId]['key'] = $extensionKey;
 			}
@@ -320,56 +330,6 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 			);
 		}
 		return $pageTsConfig;
-	}
-
-	/**
-	 * Builds a single Wizard item (one FCE) based on the
-	 * tab id, element id, configuration array and special
-	 * template identity (groupName:Relative/Path/File.html)
-	 *
-	 * @param string $tabId
-	 * @param string $id
-	 * @param Form $form
-	 * @param string $templateFileIdentity
-	 * @return string
-	 */
-	protected function buildWizardTabItem($tabId, $id, $form, $templateFileIdentity) {
-		if (TRUE === method_exists('FluidTYPO3\\Flux\\Utility\\MiscellaneousUtility', 'getIconForTemplate')) {
-			$icon = MiscellaneousUtility::getIconForTemplate($form);
-			$icon = ($icon ? $icon : $this->defaultIcon);
-		} else {
-			$icon = $this->defaultIcon;
-		}
-		$description = $form->getDescription();
-		if (0 === strpos($icon, '../')) {
-			$icon = substr($icon, 2);
-		}
-
-		if (TRUE === file_exists($icon) && TRUE === method_exists('FluidTYPO3\\Flux\\Utility\\MiscellaneousUtility', 'createIcon')) {
-			if ('/' === $icon[0]) {
-				$icon = realpath(PATH_site . $icon);
-			}
-			$icon = '../..' . MiscellaneousUtility::createIcon($icon, $this->extConf['iconWidth'], $this->extConf['iconHeight']);
-		}
-
-		return sprintf('
-			mod.wizards.newContentElement.wizardItems.%s.elements.%s {
-				icon = %s
-				title = %s
-				description = %s
-				tt_content_defValues {
-					CType = fluidcontent_content
-					tx_fed_fcefile = %s
-				}
-			}
-			',
-			$tabId,
-			$id,
-			$icon,
-			$form->getLabel(),
-			$description,
-			$templateFileIdentity
-		);
 	}
 
 	/**
