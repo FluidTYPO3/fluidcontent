@@ -163,7 +163,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 */
 	protected function renderPageTypoScriptForPageUid($pageUid) {
 		$this->backupPageUidForConfigurationManager();
-		$this->overrideCurrentPageUidForConfigurationManager($pageUid);
+		$this->overrideCurrentPageUidForConfigurationManagZer($pageUid);
 		$pageTsConfig = '';
 		try {
 			$collection = $this->getContentConfiguration();
@@ -355,7 +355,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 			if (TRUE === file_exists($icon)) {
 				$icon = str_replace('//', '/', PATH_site . MiscellaneousUtility::createIcon($icon, $this->extConf['iconWidth'], $this->extConf['iconHeight']));
 				$iconIdentifier = 'fluidcontent-' . $id;
-				$iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
+				$iconRegistry = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Imaging\\IconRegistry');
 				$iconRegistry->registerIcon($iconIdentifier, BitmapIconProvider::class, array('source' => $icon));
 			}
 		}
