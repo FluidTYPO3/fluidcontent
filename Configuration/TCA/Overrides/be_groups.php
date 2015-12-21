@@ -10,6 +10,9 @@ if (!defined('TYPO3_MODE')) {
 		'config' => array(
 			'type' => 'select',
 			'renderType' => 'selectCheckBox',
+			'size' => 10,
+			'maxitems' => 99999999,
+			'multiple' => TRUE,
 			'items' => array()
 		)
 	),
@@ -19,6 +22,9 @@ if (!defined('TYPO3_MODE')) {
 		'config' => array(
 			'type' => 'select',
 			'renderType' => 'selectCheckBox',
+			'size' => 10,
+			'maxitems' => 99999999,
+			'multiple' => TRUE,
 			'items' => array()
 		)
 	),
