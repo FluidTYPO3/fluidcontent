@@ -425,7 +425,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 		$iconIdentifier = NULL;
 		if (TRUE === method_exists('FluidTYPO3\\Flux\\Utility\\MiscellaneousUtility', 'createIcon')) {
 			if ('/' === $icon[0]) {
-				$icon = realpath(PATH_site . $icon);
+				$icon = PATH_site . ltrim($icon, '/');
 			}
 			if (TRUE === file_exists($icon) && TRUE === is_file($icon)) {
 				$extension = pathinfo($icon, PATHINFO_EXTENSION);
