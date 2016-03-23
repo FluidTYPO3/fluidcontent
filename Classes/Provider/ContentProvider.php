@@ -97,6 +97,8 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 	 */
 	public function processTableConfiguration(array $row, array $configuration) {
 		if ($row['CType'] === $this->contentObjectType) {
+			$configuration['processedTca']['columns']['pi_flexform']['config']['ds_pointerField'] = '';
+
 			// Create values for the fluidcontent type selector
 			$configuration['processedTca']['columns']['tx_fed_fcefile']['config']['items'] = array_merge(
 				$configuration['processedTca']['columns']['tx_fed_fcefile']['config']['items'],
@@ -255,6 +257,25 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 
 		$previewContent = $this->getPreviewView()->getPreview($this, $row);
 		return array(NULL, $previewContent, empty($previewContent));
+	}
+	/**
+	 * Post-process the TCEforms DataStructure for a record associated
+	 * with this ConfigurationProvider
+	 *
+	 * @param array $row
+	 * @param mixed $dataStructure
+	 * @param array $conf
+	 * @return void
+	 */
+	public function postProcessDataStructure(array &$row, &$dataStructure, array $conf) {
+		parent::postProcessDataStructure($row, $dataStructure, $conf);
+		if ($row['CType'] === $this->contentObjectType) {
+			$dataStructure['meta']['dataStructurePointers'] = array(
+					'list_type' => '',
+					'CType' => $this->contentObjectType,
+					'tx_fed_fcefile' => $row['tx_fed_fcefile']
+			);
+		}
 	}
 
 }
