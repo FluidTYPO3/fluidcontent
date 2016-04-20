@@ -223,7 +223,7 @@ class ConfigurationServiceTest extends UnitTestCase {
 	public function onlyFetchRootTypoScriptOfRootlineIfTheFluxConfigurationManagerIsInjected() {
 		$cache = $this->getMock('TYPO3\\CMS\\Core\\Cache\\Frontend\\VariableFrontend', array('has', 'set', 'get'), array(), '', FALSE);
 		$cache->expects($this->once())->method('has')->willReturn(FALSE);
-		$cache->expects($this->once())->method('set');
+		$cache->expects($this->exactly(2))->method('set');
 		$cache->expects($this->once())->method('get');
 		$manager = $this->getMock('TYPO3\\CMS\\Core\\Cache\\CacheManager', array('getCache'));
 		$manager->expects($this->once())->method('getCache')->willReturn($cache);
