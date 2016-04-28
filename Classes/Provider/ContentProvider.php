@@ -18,6 +18,7 @@ use FluidTYPO3\Flux\Utility\MiscellaneousUtility;
 use FluidTYPO3\Flux\Utility\PathUtility;
 use FluidTYPO3\Flux\View\TemplatePaths;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
@@ -120,6 +121,45 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface {
 			}
 		}
 		return $configuration;
+	}
+
+	/**
+	 * Check if an update with a new sys_language_uid did occur. if yes, apply this new sys_language_uid recursively
+	 *
+	 * @param string $operation TYPO3 operation identifier, i.e. "update", "new" etc.
+	 * @param integer $id The ID of the current record (which is sometimes now included in $row
+	 * @param array $row the record data, by reference. Changing fields' values changes the record's values just before saving
+	 * @param DataHandler $reference A reference to the \TYPO3\CMS\Core\DataHandling\DataHandler object that is currently saving the record
+	 * @param array $removals Allows overridden methods to pass an additional array of field names to remove from the stored Flux value
+	 * @return void
+	 */
+	public function postProcessRecord($operation, $id, array &$row, DataHandler $reference, array $removals = array()) {
+		if (isset($row['sys_language_uid']) !== TRUE || $operation !== 'update') {
+			return;
+		}
+
+		$record = $this->recordService->getSingle('tt_content', '*', (integer) $id);
+		if ($record['CType'] !== $this->contentObjectType) {
+			return;
+		}
+		
+		$this->applyLanguageRecursively($id, $row['sys_language_uid']);
+	}
+
+	/**
+	 * walk fluidcontent elements recusively downwards and update their sys_language_uid
+	 *
+	 * @param integer $parentUid
+	 * @param integer $languageUid
+	 * return void
+	 */
+	public function applyLanguageRecursively($parentUid, $languageUid) {
+		$children = $this->recordService->get('tt_content', '*', 'tx_flux_parent = ' . $parentUid);
+		foreach	($children as $child) {
+			$child['sys_language_uid'] = $languageUid;
+			$this->recordService->update('tt_content', $child);
+			$this->applyLanguageRecursively($child['uid'], $languageUid);
+		}
 	}
 
 	/**
