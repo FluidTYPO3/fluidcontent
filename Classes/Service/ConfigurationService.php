@@ -34,7 +34,7 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
  * Provides methods to read various configuration related
  * to Fluid Content Elements.
  */
-class ConfigurationService extends FluxService implements SingletonInterface {
+class ConfigurationService extends FluxService {
 
 	/**
 	 * Default Width for icon
@@ -81,6 +81,11 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	protected $pageUidBackup;
 
 	/**
+	 * @var array
+	 */
+	protected $wizardtabIcons;
+
+	 /**
 	 * @param CacheManager $manager
 	 * @return void
 	 */
@@ -153,6 +158,8 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 */
 	public function getPageTsConfig() {
 		$cache = $this->manager->getCache('fluidcontent');
+		$this->wizardtabIcons = array();
+
 		if (!$cache->has('pageTsConfig')) {
 			$pageTsConfig = '';
 			$templates = $this->getAllRootTypoScriptTemplates();
@@ -166,6 +173,19 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 				$processed[$pageUid] = 1;
 			}
 			$cache->set('pageTsConfig', $pageTsConfig, array(), 86400);
+			// while IconRegistry does not cache the icons we have to do it ourselves.
+			$cache->set('wizardtabIcons', $this->wizardtabIcons, array(), 86400);
+		} else {
+			if ($cache->has('wizardtabIcons')) {
+				$this->wizardtabIcons = $cache->get('wizardtabIcons');
+				if (TRUE === is_array($this->wizardtabIcons) && count($this->wizardtabIcons) > 0) {
+					// register wizard tab icons
+					foreach ($this->wizardtabIcons as $iconIdentifier => $icon) {
+						$iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
+						$iconRegistry->registerIcon($iconIdentifier, $icon['provider'], $icon['options']);
+					}
+				}
+			}
 		}
 		return $cache->get('pageTsConfig');
 	}
@@ -191,7 +211,7 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 			$collection = $this->getContentConfiguration();
 			$wizardTabs = $this->buildAllWizardTabGroups($collection);
 			$collectionPageTsConfig = $this->buildAllWizardTabsPageTsConfig($wizardTabs);
-			$pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
+			$pageTsConfig .= '[PIDinRootline = ' . (string) $pageUid . ']' . LF;
 			$pageTsConfig .= $collectionPageTsConfig . LF;
 			$pageTsConfig .= '[GLOBAL]' . LF;
 			$this->message('Built content setup for page ' . $pageUid, GeneralUtility::SYSLOG_SEVERITY_INFO, 'Fluidcontent');
@@ -442,6 +462,15 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 				$iconIdentifier = 'fluidcontent-' . $id;
 				$iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
 				$iconRegistry->registerIcon($iconIdentifier, $iconProvider, array('source' => $icon));
+
+				// IconRegistry is a stupid class without caching the registry
+				// so we must store the icon definition separatly in an array
+				// in order to store them later in the cache.
+				$this->wizardtabIcons[$iconIdentifier] = array(
+					'provider' => $iconProvider,
+					'options' => array('source' => $icon)
+				);
+
 			}
 		}
 		$defaultValues = array();
