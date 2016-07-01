@@ -44,6 +44,7 @@ class ConfigurationServiceTest extends UnitTestCase {
 			array('getPageTsConfig'),
 			array(), '', FALSE
 		);
+		$service->expects($this->any())->method('getPageTsConfig')->willReturn('test');
 		$service->writeCachedConfigurationIfMissing();
 	}
 
