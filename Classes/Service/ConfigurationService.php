@@ -134,26 +134,32 @@ class ConfigurationService extends FluxService implements SingletonInterface {
 	 * @return string
 	 */
 	public function getPageTsConfig() {
-		$pageTsConfig = '';
-		$templates = $this->getAllRootTypoScriptTemplates();
-		foreach ($templates as $template) {
-			$pageUid = (integer) $template['pid'];
-			$pageTsConfig .= $this->renderPageTypoScriptForPageUid($pageUid);
-		}
-		return $pageTsConfig;
-	}
+        $cache = $this->manager->getCache('fluidcontent');
+        if (!$cache->has('pageTsConfig')) {
+            $pageTsConfig = '';
+            $templates = $this->getAllRootTypoScriptTemplates();
+            $processed = array();
+            foreach ($templates as $template) {
+                $pageUid = (integer) $template['pid'];
+                if (isset($processed[$pageUid])) {
+                    continue;
+                }
+                $pageTsConfig .= $this->renderPageTypoScriptForPageUid($pageUid);
+                $processed[$pageUid] = 1;
+            }
+            $cache->set('pageTsConfig', $pageTsConfig, array(), 86400);
+        }
+        return $cache->get('pageTsConfig');
+    }
 
 	/**
-	 * @return void
+     * Delegates to $this->getPageTsConfig() which pre-warms the cached TS
+     *
+     * @return void
 	 */
 	public function writeCachedConfigurationIfMissing() {
-		/** @var StringFrontend $cache */
-		$cache = $this->manager->getCache('fluidcontent');
-		$hasCache = $cache->has('pageTsConfig');
-		if (FALSE === $hasCache) {
-			$cache->set('pageTsConfig', $this->getPageTsConfig(), array(), 86400);
-		}
-	}
+        $this->getPageTsConfig();
+    }
 
 	/**
 	 * @param $pageUid

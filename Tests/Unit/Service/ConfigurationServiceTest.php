@@ -38,35 +38,14 @@ class ConfigurationServiceTest extends UnitTestCase {
 	}
 
 	public function testWriteCachedConfigurationIfMissing() {
-		$GLOBALS['TYPO3_DB'] = $this->getMock(
-			'TYPO3\\CMS\\Core\\Database\\DatabaseConnection',
-			array('prepare_SELECTquery'),
-			array(), '', FALSE
-		);
-		$preparedStatementMock = $this->getMock(
-			'TYPO3\\CMS\\Core\\Database\\PreparedStatement',
-			array('execute', 'fetch', 'free'),
-			array(), '', FALSE
-		);
-		$preparedStatementMock->expects($this->any())->method('execute')->willReturn(FALSE);
-		$preparedStatementMock->expects($this->any())->method('free');
-		$preparedStatementMock->expects($this->any())->method('fetch')->willReturn(FALSE);;
-		$GLOBALS['TYPO3_DB']->expects($this->any())->method('prepare_SELECTquery')->willReturn($preparedStatementMock);
 		/** @var ConfigurationService|\PHPUnit_Framework_MockObject_MockObject $service */
 		$service = $this->getMock(
 			'FluidTYPO3\\Fluidcontent\\Service\\ConfigurationService',
-			array('getAllRootTypoScriptTemplates', 'renderPageTypoScriptForPageUid'),
-			array(), '', FALSE
+            array('getPageTsConfig'),
+            array(), '', FALSE
 		);
-		$service->expects($this->once())->method('getAllRootTypoScriptTemplates')->willReturn(array(array('pid' => 1)));
-		$service->expects($this->once())->method('renderPageTypoScriptForPageUid')->willReturn('test');
-		$service->injectConfigurationManager(GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager')
-			->get('TYPO3\\CMS\\Extbase\\Configuration\\ConfigurationManagerInterface'));
-		$service->injectCacheManager(GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager')
-			->get('TYPO3\\CMS\\Core\\Cache\\CacheManager'));
-		$service->injectRecordService(GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager')
-			->get('FluidTYPO3\\Flux\\Service\\WorkspacesAwareRecordService'));
-		$service->writeCachedConfigurationIfMissing();
+        $service->expects($this->any())->method('getPageTsConfig')->willReturn('test');
+        $service->writeCachedConfigurationIfMissing();
 	}
 
 	public function testBuildAllWizardTabsPageTsConfig() {
