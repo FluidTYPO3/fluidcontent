@@ -45,7 +45,18 @@ class ContentProviderTest extends UnitTestCase
         $preparedStatementMock->expects($this->any())->method('free');
         $preparedStatementMock->expects($this->any())->method('fetch')->willReturn(false);
         $GLOBALS['TYPO3_DB']->expects($this->any())->method('prepare_SELECTquery')->willReturn($preparedStatementMock);
-        $instance = GeneralUtility::makeInstance(ObjectManager::class)->get(ContentProvider::class);
+        $instance = $this->getMockBuilder(ContentProvider::class)->setMethods(['getPreview', 'getTemplatePaths'])->getMock();
+        $instance->expects($this->any())->method('getTemplatePaths')->willReturn(['templateRootPaths' => ['EXT:fluidcontent/Resources/Private/Templates/']]);
+        $instance->expects($this->any())->method('getPreview')->willReturn(['preview', true]);
+        $configurationServiceMock = $this->getMockBuilder(ConfigurationService::class)->setMethods(['translateLabel', 'getContentConfiguration'])->getMock();
+        $configurationServiceMock->expects($this->any())->method('getContentConfiguration')->willReturn([
+            'fluidcontent' => [
+                'templateRootPaths' => [
+                    'EXT:fluidcontent/Tests/Fixtures/Templates/'
+                ]
+            ]
+        ]);
+        $instance->injectConfigurationService($configurationServiceMock);
         return $instance;
     }
 
@@ -54,7 +65,7 @@ class ContentProviderTest extends UnitTestCase
      */
     public function testPerformsInjections()
     {
-        $instance = $this->createProviderInstance();
+        $instance = GeneralUtility::makeInstance(ObjectManager::class)->get(ContentProvider::class);
         $this->assertAttributeInstanceOf(
             ConfigurationManagerInterface::class,
             'configurationManager',
@@ -89,7 +100,7 @@ class ContentProviderTest extends UnitTestCase
         $file = $path . 'Resources/Private/Templates/Content/Error.html';
         return [
             [['uid' => 0], $file],
-            [['tx_fed_fcefile' => 'test:Error.html'], null],
+            [['tx_fed_fcefile' => 'test:Error.html'], $file],
             [['tx_fed_fcefile' => 'fluidcontent:Error.html'], $file],
         ];
     }
@@ -202,19 +213,18 @@ class ContentProviderTest extends UnitTestCase
     /**
      * @test
      * @dataProvider getPreviewTestValues
-     * @param $record
-     * @param $expected
+     * @param array $record
      *
      * tests if defaut previews for content elements of different types
      * each with a tx_fed_tcefile defined
      */
-    public function testGetPreviewForTextElement($record, $expected)
+    public function testGetPreviewForTextElement(array $record)
     {
         $instance = $this->createProviderInstance();
         $recordService = $this->getMockBuilder(WorkspacesAwareRecordService::class)->setMethods(['get'])->getMock();
         $instance->injectRecordService($recordService);
         $result = $instance->getPreview($record);
-        $this->assertEquals($expected, $result);
+        $this->assertEquals(['preview', true], $result);
     }
 
     public function getPreviewTestValues()
@@ -226,11 +236,6 @@ class ContentProviderTest extends UnitTestCase
                     'CType' => 'text',
                     'header' => 'this is a simple text element',
                     'tx_fed_tcefile' => 'dummy-fed-file.txt'
-                ],
-                [
-                    null,
-                    null,
-                    true
                 ]
             ],
             [
@@ -239,27 +244,6 @@ class ContentProviderTest extends UnitTestCase
                     'CType' => 'fluidcontent_content',
                     'header' => 'this is a simple text element',
                     'tx_fed_tcefile' => 'dummy-fed-file.txt'
-                ],
-                [
-                    null,
-                    '<div class="alert alert-warning">
-		<div class="media">
-			<div class="media-left">
-						<span class="fa-stack fa-lg">
-							<i class="fa fa-circle fa-stack-2x"></i>
-							<i class="fa fa-exclamation fa-stack-1x"></i>
-						</span>
-			</div>
-			<div class="media-body">
-				<h4 class="alert-title">Warning</h4>
-
-				<div class="alert-message">
-					Fluid Content type not selected - edit this element to fix this!
-				</div>
-			</div>
-		</div>
-	</div>',
-                    false
                 ]
             ]
         ];

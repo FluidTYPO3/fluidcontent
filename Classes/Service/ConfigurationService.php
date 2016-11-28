@@ -328,14 +328,15 @@ class ConfigurationService extends FluxService implements SingletonInterface
                 }
                 $sanitizedGroup = $this->sanitizeString($group);
                 $tabId = $group === $sanitizedGroup ? $group : 'group_' . $sanitizedGroup;
-                $wizardTabs[$tabId]['title'] = LocalizationUtility::translate(
+                $wizardTabs[$tabId]['title'] = $group;
+                $wizardTabs[$tabId]['title'] = $this->translateLabel(
                     'fluidcontent.newContentWizard.group.' . $group,
                     ExtensionNamingUtility::getExtensionKey($extensionKey)
                 );
                 if ($wizardTabs[$tabId]['title'] === null) {
                     $coreTranslationReference =
                         'LLL:EXT:backend/Resources/Private/Language/locallang_db_new_content_el.xlf:' . $group;
-                    $wizardTabs[$tabId]['title'] = LocalizationUtility::translate($coreTranslationReference, 'backend');
+                    $wizardTabs[$tabId]['title'] = $this->translateLabel($coreTranslationReference, 'backend');
                     if (!$wizardTabs[$tabId]['title'] || $coreTranslationReference == $wizardTabs[$tabId]['title']) {
                         $wizardTabs[$tabId]['title'] = $group;
                     }
@@ -381,11 +382,7 @@ class ConfigurationService extends FluxService implements SingletonInterface
                         $fileRelPath = $actionName . '.html';
                         $viewContext->setTemplatePathAndFilename($templateFilename);
                         $form = $this->getFormFromTemplateFile($viewContext);
-                        if (true === empty($form)) {
-                            $this->sendDisabledContentWarning($templateFilename);
-                            continue;
-                        }
-                        if (false === $form->getEnabled()) {
+                        if (empty($form) || !$form->getEnabled()) {
                             $this->sendDisabledContentWarning($templateFilename);
                             continue;
                         }
@@ -571,5 +568,16 @@ class ConfigurationService extends FluxService implements SingletonInterface
             'Disabled Fluid Content Element: ' . $templatePathAndFilename,
             GeneralUtility::SYSLOG_SEVERITY_NOTICE
         );
+    }
+
+    /**
+     * @param string $key
+     * @param string $extensionName
+     * @param array $arguments
+     * @return string
+     */
+    protected function translateLabel($key, $extensionName, $arguments = [])
+    {
+        return LocalizationUtility::translate($key, $extensionName, $arguments);
     }
 }
