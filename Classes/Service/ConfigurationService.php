@@ -38,24 +38,9 @@ class ConfigurationService extends FluxService implements SingletonInterface
 {
 
     /**
-     * Default Width for icon
-     */
-    const ICON_WIDTH = '24m';
-
-    /**
-     * Default Height for icon
-     */
-    const ICON_HEIGHT = '24m';
-
-    /**
      * Cache tag for all icons
      */
     const ICON_CACHE_TAG = 'icon';
-
-    /**
-     * @var array
-     */
-    protected $extConf;
 
     /**
      * @var CacheManager
@@ -120,10 +105,6 @@ class ConfigurationService extends FluxService implements SingletonInterface
     {
         $this->defaultIcon = '../' . ExtensionManagementUtility::siteRelPath('fluidcontent') .
             'Resources/Public/Icons/Plugin.svg';
-
-        $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['fluidcontent']);
-        $this->extConf['iconWidth'] = $this->extConf['iconWidth'] ? : self::ICON_WIDTH;
-        $this->extConf['iconHeight'] = $this->extConf['iconHeight'] ? : self::ICON_HEIGHT;
     }
 
     /**
@@ -401,20 +382,31 @@ class ConfigurationService extends FluxService implements SingletonInterface
      */
     public function getContentTypeSelectorItems()
     {
-        $items = [];
         $types = $this->getContentElementFormInstances();
-        foreach ($types as $group => $forms) {
+
+        // use from option.group as group name, if exists
+        $groups = [];
+        foreach ($types as $extension => $forms) {
+            foreach ($forms as $form) {
+                $groupName = $form->getOption('group') ?: $extension;
+                $groups[$groupName][$this->translateLabel($form->getLabel(), '')] = $form;
+            }
+        }
+        $items = [];
+        foreach ($groups as $extension => $forms) {
+            ksort($forms);
             $enabledElements = [];
             foreach ($forms as $form) {
+                $icon = MiscellaneousUtility::getIconForTemplate($form);
                 $enabledElements[] = [
                     $form->getLabel(),
                     $form->getOption('contentElementId'),
-                    '..' . MiscellaneousUtility::getIconForTemplate($form)
+                    strpos($icon, 'EXT:') === 0 ? $icon : '..' . $icon
                 ];
             }
             if (!empty($enabledElements)) {
                 $items[] = [
-                    $group,
+                    $extension,
                     '--div--'
                 ];
                 $items = array_merge($items, $enabledElements);
@@ -483,7 +475,9 @@ class ConfigurationService extends FluxService implements SingletonInterface
 
         $iconIdentifier = null;
         if (true === method_exists('FluidTYPO3\\Flux\\Utility\\MiscellaneousUtility', 'createIcon')) {
-            if ('/' === $icon[0]) {
+            if (0 === strpos($icon, 'EXT:')) {
+                $icon = GeneralUtility::getFileAbsFileName($icon);
+            } elseif ('/' === $icon[0]) {
                 $icon = rtrim(PATH_site, '/') . $icon;
             }
             if (true === file_exists($icon) && true === is_file($icon)) {

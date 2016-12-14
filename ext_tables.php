@@ -9,6 +9,6 @@ if (!(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_INSTALL)) {
 	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPlugin(array(
 		'Fluid Content',
 		'fluidcontent_content',
-		\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('fluidcontent') . 'ext_icon.gif'
+		'EXT:fluidcontent/Resources/Public/Icons/Plugin.svg'
 	), \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT, 'FluidTYPO3.Fluidcontent');
 }
