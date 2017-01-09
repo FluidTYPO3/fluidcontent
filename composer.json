@@ -4,7 +4,7 @@
     "require": {
         "fluidtypo3/flux": "*",
         "typo3/cms": "^7.6|^8.4",
-        "php": ">=5.5.0"
+        "php": ">=7.0.0"
     },
     "require-dev": {
         "fluidtypo3/development": "^3.0",
