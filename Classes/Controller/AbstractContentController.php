@@ -61,7 +61,7 @@ abstract class AbstractContentController extends AbstractFluxController implemen
             $row['pi_flexform'],
             $form
         );
-        $this->settings = RecursiveArrayUtility::merge($this->settings, $generalSettings, false, false);
+        $this->settings = RecursiveArrayUtility::merge($this->settings, $generalSettings);
         // Add fluidcontent_core form settings (to avoid flux:form.data in templates)
         if (false === empty($row['content_options'])) {
             $contentSettings = $this->contentConfigurationService->convertFlexFormContentToArray(
