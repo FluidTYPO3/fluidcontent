@@ -18,7 +18,6 @@ use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use FluidTYPO3\Flux\Utility\MiscellaneousUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Cache\Frontend\StringFrontend;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
@@ -494,7 +493,6 @@ class ConfigurationService extends FluxService implements SingletonInterface
                 $iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
                 $iconRegistry->registerIcon($iconIdentifier, $iconProvider, ['source' => $icon]);
 
-                $cacheExists = $this->manager->hasCache('fluidcontent');
                 if ($this->manager->hasCache('fluidcontent')) {
                     $this->manager->getCache('fluidcontent')->set(
                         $iconIdentifier,

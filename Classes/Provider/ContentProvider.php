@@ -14,10 +14,8 @@ use FluidTYPO3\Flux\Form;
 use FluidTYPO3\Flux\Provider\ContentProvider as FluxContentProvider;
 use FluidTYPO3\Flux\Provider\ProviderInterface;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
-use FluidTYPO3\Flux\Utility\MiscellaneousUtility;
 use FluidTYPO3\Flux\Utility\PathUtility;
 use FluidTYPO3\Flux\View\TemplatePaths;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
@@ -95,7 +93,7 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface
     }
 
     /**
-     * @param array $record
+     * @param array $row
      * @param array $configuration
      * @return array
      */
@@ -146,8 +144,7 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface
         $form = parent::getForm($row);
         if (null !== $form) {
             $moveSortingProperty = (
-                defined('FluidTYPO3\\Flux\\Form::OPTION_SORTING')
-                && false === $form->hasOption(Form::OPTION_SORTING)
+                false === $form->hasOption(Form::OPTION_SORTING)
                 && true === $form->hasOption('Fluidcontent.sorting')
             );
             if (true === $moveSortingProperty) {
