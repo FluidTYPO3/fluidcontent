@@ -55,5 +55,11 @@ call_user_func(
             'fluidcontent_content',
             'after:header'
         );
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
+            'tt_content',
+            ',--div--;LLL:EXT:fluidcontent_elements/Resources/Private/Language/locallang_tabs.xlf:notes,rowDescription,',
+            'fluidcontent_content',
+            'before:--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.extended'
+        );
     }
 );
