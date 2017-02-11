@@ -40,7 +40,7 @@ class WizardItemsHookSubscriber extends FluxWizardItemsHookSubscriber implements
 
     /**
      * @param array $items
-     * @param \TYPO3\CMS\Backend\Controller\ContentElement\NewContentElementController $parentObject
+     * @param NewContentElementController $parentObject
      * @return void
      */
     public function manipulateWizardItems(&$items, &$parentObject)
@@ -52,7 +52,7 @@ class WizardItemsHookSubscriber extends FluxWizardItemsHookSubscriber implements
 
     /**
      * @param array $items
-     * @param \TYPO3\CMS\Backend\Controller\ContentElement\NewContentElementController $parentObject
+     * @param NewContentElementController $parentObject
      * @return array
      */
     protected function filterPermittedFluidContentTypesByUserGroupAccessList(array $items, $parentObject)

@@ -18,11 +18,11 @@ use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use FluidTYPO3\Flux\Utility\MiscellaneousUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Cache\Frontend\StringFrontend;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
@@ -38,24 +38,9 @@ class ConfigurationService extends FluxService implements SingletonInterface
 {
 
     /**
-     * Default Width for icon
-     */
-    const ICON_WIDTH = '24m';
-
-    /**
-     * Default Height for icon
-     */
-    const ICON_HEIGHT = '24m';
-
-    /**
      * Cache tag for all icons
      */
     const ICON_CACHE_TAG = 'icon';
-
-    /**
-     * @var array
-     */
-    protected $extConf;
 
     /**
      * @var CacheManager
@@ -120,10 +105,6 @@ class ConfigurationService extends FluxService implements SingletonInterface
     {
         $this->defaultIcon = '../' . ExtensionManagementUtility::siteRelPath('fluidcontent') .
             'Resources/Public/Icons/Plugin.svg';
-
-        $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['fluidcontent']);
-        $this->extConf['iconWidth'] = $this->extConf['iconWidth'] ? : self::ICON_WIDTH;
-        $this->extConf['iconHeight'] = $this->extConf['iconHeight'] ? : self::ICON_HEIGHT;
     }
 
     /**
@@ -225,8 +206,7 @@ class ConfigurationService extends FluxService implements SingletonInterface
         $this->overrideCurrentPageUidForConfigurationManager($pageUid);
         $pageTsConfig = '';
         try {
-            $collection = $this->getContentConfiguration();
-            $wizardTabs = $this->buildAllWizardTabGroups($collection);
+            $wizardTabs = $this->buildAllWizardTabGroups();
             $collectionPageTsConfig = $this->buildAllWizardTabsPageTsConfig($wizardTabs);
             $pageTsConfig .= '[PIDinRootline = ' . strval($pageUid) . ']' . LF;
             $pageTsConfig .= $collectionPageTsConfig . LF;
@@ -307,14 +287,11 @@ class ConfigurationService extends FluxService implements SingletonInterface
     }
 
     /**
-     * Scans all folders in $allTemplatePaths for template
-     * files, reads information about each file and collects
-     * the groups of files into groups of pageTSconfig setup.
+     * Scans all folders in registered provider extensions for Form instances.
      *
-     * @param array $allTemplatePaths
      * @return array
      */
-    protected function buildAllWizardTabGroups($allTemplatePaths)
+    protected function buildAllWizardTabGroups()
     {
         $wizardTabs = [];
         $forms = $this->getContentElementFormInstances();
@@ -324,29 +301,22 @@ class ConfigurationService extends FluxService implements SingletonInterface
                 /** @var Form $form */
                 $group = $form->getOption(Form::OPTION_GROUP);
                 if (true === empty($group)) {
-                    $group = 'Content';
+                    $group = 'common';
                 }
                 if (true === (boolean) $form->getOption('Fluidcontent.hidden')) {
                     continue;
                 }
                 $sanitizedGroup = $this->sanitizeString($group);
                 $tabId = $group === $sanitizedGroup ? $group : 'group_' . $sanitizedGroup;
-                $wizardTabs[$tabId]['title'] = LocalizationUtility::translate(
-                    'fluidcontent.newContentWizard.group.' . $group,
-                    ExtensionNamingUtility::getExtensionKey($extensionKey)
-                );
-                if ($wizardTabs[$tabId]['title'] === null) {
-                    $coreTranslationReference =
-                        'LLL:EXT:backend/Resources/Private/Language/locallang_db_new_content_el.xlf:' . $group;
-                    $wizardTabs[$tabId]['title'] = LocalizationUtility::translate($coreTranslationReference, 'backend');
-                    if (!$wizardTabs[$tabId]['title'] || $coreTranslationReference == $wizardTabs[$tabId]['title']) {
-                        $wizardTabs[$tabId]['title'] = $group;
-                    }
+                if (!isset($wizardTabs[$tabId]['title'])) {
+                    $wizardTabs[$tabId]['title'] = $this->translateLabel(
+                        'fluidcontent.newContentWizard.group.' . $group,
+                        ExtensionNamingUtility::getExtensionKey($extensionKey)
+                    ) ?? $tabId;
                 }
                 $contentElementId = $form->getOption('contentElementId');
                 $elementTsConfig = $this->buildWizardTabItem($tabId, $id, $form, $contentElementId);
                 $wizardTabs[$tabId]['elements'][$id] = $elementTsConfig;
-                $wizardTabs[$tabId]['key'] = $extensionKey;
             }
         }
         return $wizardTabs;
@@ -384,12 +354,11 @@ class ConfigurationService extends FluxService implements SingletonInterface
                         $fileRelPath = $actionName . '.html';
                         $viewContext->setTemplatePathAndFilename($templateFilename);
                         $form = $this->getFormFromTemplateFile($viewContext);
-                        if (true === empty($form)) {
+                        if (empty($form) || !$form->getEnabled()) {
                             $this->sendDisabledContentWarning($templateFilename);
                             continue;
                         }
-                        if (false === $form->getEnabled()) {
-                            $this->sendDisabledContentWarning($templateFilename);
+                        if ($form->getOption('Fluidcontent.hidden')) {
                             continue;
                         }
                         $id = preg_replace('/[\.\/]/', '_', $registeredExtensionKey . '/' . $actionName . '.html');
@@ -407,20 +376,32 @@ class ConfigurationService extends FluxService implements SingletonInterface
      */
     public function getContentTypeSelectorItems()
     {
-        $items = [];
         $types = $this->getContentElementFormInstances();
-        foreach ($types as $group => $forms) {
+
+        // use from option.group as group name, if exists
+        $groups = [];
+        foreach ($types as $extension => $forms) {
+            foreach ($forms as $form) {
+                $groupName = $form->getOption('group') ?: $extension;
+                $label = $form->getLabel();
+                $groups[$groupName][$label] = $form;
+            }
+        }
+        $items = [];
+        foreach ($groups as $extension => $forms) {
+            ksort($forms);
             $enabledElements = [];
             foreach ($forms as $form) {
+                $icon = MiscellaneousUtility::getIconForTemplate($form);
                 $enabledElements[] = [
                     $form->getLabel(),
                     $form->getOption('contentElementId'),
-                    '..' . MiscellaneousUtility::getIconForTemplate($form)
+                    strpos($icon, 'EXT:') === 0 ? $icon : '..' . $icon
                 ];
             }
             if (!empty($enabledElements)) {
                 $items[] = [
-                    $group,
+                    $extension,
                     '--div--'
                 ];
                 $items = array_merge($items, $enabledElements);
@@ -438,27 +419,25 @@ class ConfigurationService extends FluxService implements SingletonInterface
      */
     protected function buildAllWizardTabsPageTsConfig($wizardTabs)
     {
+        $existingItems = $this->getExistingNewContentWizardItems();
+
         $pageTsConfig = '';
-        foreach ($wizardTabs as $tab) {
-            foreach ($tab['elements'] as $elementTsConfig) {
-                $pageTsConfig .= $elementTsConfig;
-            }
-        }
         foreach ($wizardTabs as $tabId => $tab) {
             $pageTsConfig .= sprintf(
                 '
-				mod.wizards.newContentElement.wizardItems.%s {
-					header = %s
-					show := addToList(%s)
-					position = 0
-					key = %s
-				}
-				',
+                mod.wizards.newContentElement.wizardItems.%s.header = %s
+                mod.wizards.newContentElement.wizardItems.%s.show := addToList(%s)
+                mod.wizards.newContentElement.wizardItems.%s.position = 0
+                ',
                 $tabId,
-                $tab['title'],
+                !empty($existingItems[$tabId]['header']) ? $existingItems[$tabId]['header'] : $tabId,
+                $tabId,
                 implode(',', array_keys($tab['elements'])),
-                $tab['key']
+                $tabId
             );
+            foreach ($tab['elements'] as $elementTsConfig) {
+                $pageTsConfig .= $elementTsConfig;
+            }
         }
         return $pageTsConfig;
     }
@@ -489,7 +468,9 @@ class ConfigurationService extends FluxService implements SingletonInterface
 
         $iconIdentifier = null;
         if (true === method_exists('FluidTYPO3\\Flux\\Utility\\MiscellaneousUtility', 'createIcon')) {
-            if ('/' === $icon[0]) {
+            if (0 === strpos($icon, 'EXT:')) {
+                $icon = GeneralUtility::getFileAbsFileName($icon);
+            } elseif ('/' === $icon[0]) {
                 $icon = rtrim(PATH_site, '/') . $icon;
             }
             if (true === file_exists($icon) && true === is_file($icon)) {
@@ -506,7 +487,6 @@ class ConfigurationService extends FluxService implements SingletonInterface
                 $iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
                 $iconRegistry->registerIcon($iconIdentifier, $iconProvider, ['source' => $icon]);
 
-                $cacheExists = $this->manager->hasCache('fluidcontent');
                 if ($this->manager->hasCache('fluidcontent')) {
                     $this->manager->getCache('fluidcontent')->set(
                         $iconIdentifier,
@@ -574,5 +554,48 @@ class ConfigurationService extends FluxService implements SingletonInterface
             'Disabled Fluid Content Element: ' . $templatePathAndFilename,
             GeneralUtility::SYSLOG_SEVERITY_NOTICE
         );
+    }
+
+    /**
+     * @param string $key
+     * @param string $extensionName
+     * @param array $arguments
+     * @return string|null
+     */
+    protected function translateLabel($key, $extensionName, $arguments = [])
+    {
+        return LocalizationUtility::translate($key, $extensionName, $arguments);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getExistingNewContentWizardItems()
+    {
+        static $pageTSconfig;
+        if (!isset($pageTSconfig)) {
+            $parser = $this->getTypoScriptParser();
+            $config = $GLOBALS['TYPO3_CONF_VARS']['BE']['defaultPageTSconfig'];
+            $inclusions = $parser::checkIncludeLines($config, 1, true);
+            $config .= $inclusions['typoscript'];
+            foreach ($inclusions['files'] as $include) {
+                $config .= file_get_contents($include);
+            }
+            $parser->parse($config);
+            if (isset($parser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.'])) {
+                $pageTSconfig = GeneralUtility::removeDotsFromTS($parser->setup['mod.']['wizards.']['newContentElement.']['wizardItems.']);
+            } else {
+                $pageTSconfig = [];
+            }
+        }
+        return $pageTSconfig;
+    }
+
+    /**
+     * @return TypoScriptParser
+     */
+    protected function getTypoScriptParser()
+    {
+        return new TypoScriptParser();
     }
 }

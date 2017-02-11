@@ -43,10 +43,10 @@ class BackendUserGroupProvider extends AbstractProvider implements ProviderInter
     }
 
     /**+
-	 * @param array $record
-	 * @param array $configuration
-	 * @return array
-	 */
+     * @param array $row
+     * @param array $configuration
+     * @return array
+     */
     public function processTableConfiguration(array $row, array $configuration)
     {
 

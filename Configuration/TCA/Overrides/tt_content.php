@@ -1,39 +1,71 @@
 <?php
 if (!defined('TYPO3_MODE')) {
-	die ('Access denied.');
+    die ('Access denied.');
 }
 
-$contentSelector = 'FluidTYPO3\Fluidcontent\Backend\ContentSelector->renderField';
+call_user_func(
+    function () {
 
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_content', array(
-	'tx_fed_fcefile' => array(
-		'exclude' => 1,
-		'label' => 'LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:tt_content.tx_fed_fcefile',
-		'displayCond' => 'FIELD:CType:=:fluidcontent_content',
-		'config' => array(
-			'type' => 'select',
-			'renderType' => 'selectSingle',
-			'items' => array(
-				array('LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xml:tt_content.tx_fed_fcefile', '')
-			)
-		)
-	),
-));
+        $languageFilePrefix = 'LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xlf:';
+        $frontendLanguageFilePrefix = 'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:';
+        $tabsLanguageFilePrefix = 'LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:';
 
-$GLOBALS['TCA']['tt_content']['ctrl']['requestUpdate'] .= ',tx_fed_fcefile';
-$GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
-                --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.general;general,
-                --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.headers;headers,
-                pi_flexform,
-        --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.appearance,
-                --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.frames;frames,
-        --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,
-                --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.visibility;visibility,
-                --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.access;access,
-        --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.extended
-';
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns(
+            'tt_content',
+            [
+                'tx_fed_fcefile' => [
+                    'exclude' => 1,
+                    'label' => $languageFilePrefix.'tt_content.tx_fed_fcefile',
+                    'displayCond' => 'FIELD:CType:=:fluidcontent_content',
+                    'config' => [
+                        'type' => 'select',
+                        'renderType' => 'selectSingle',
+                        'items' => [
+                            [$languageFilePrefix.'tt_content.tx_fed_fcefile', ''],
+                        ],
+                        'showIconTable' => false,
+                        'selicon_cols'  => 0,
+                    ],
+                ],
+            ]
+        );
 
-$GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'] = 'apps-pagetree-root';
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette('tt_content', 'general', 'tx_fed_fcefile', 'after:CType');
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', 'pi_flexform', 'fluidcontent_content', 'after:header');
+        $GLOBALS['TCA']['tt_content']['ctrl']['requestUpdate'] .= ',tx_fed_fcefile';
+        $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
+            --div--;' . $tabsLanguageFilePrefix . 'general,
+            --palette--;' . $frontendLanguageFilePrefix . 'palette.general;general,
+            --palette--;' . $frontendLanguageFilePrefix . 'palette.header;header,
+            --div--;' . $frontendLanguageFilePrefix . 'tabs.appearance, layout;' . $frontendLanguageFilePrefix . 'layout_formlabel,
+            --palette--; '. $frontendLanguageFilePrefix . 'palette.frames;frames,
+            --palette--;' . $frontendLanguageFilePrefix . 'palette.appearanceLinks;appearanceLinks,
+            --div--;' . $tabsLanguageFilePrefix . 'language, --palette--;;language,
+            --div--;' . $tabsLanguageFilePrefix . 'access,
+            --palette--;;hidden,
+            --palette--;' . $frontendLanguageFilePrefix . ':palette.access;access,
+            --div--;' . $tabsLanguageFilePrefix . 'categories, categories,
+            --div--;' . $tabsLanguageFilePrefix . 'notes, rowDescription,
+            --div--;' . $tabsLanguageFilePrefix . 'extended,
+            --div--;LLL:EXT:flux/Resources/Private/Language/locallang.xlf:tt_content.tabs.relation, tx_flux_parent, tx_flux_column
+        ';
 
+        $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'] = 'apps-pagetree-root';
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette(
+            'tt_content',
+            'general',
+            'tx_fed_fcefile',
+            'after:CType'
+        );
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
+            'tt_content',
+            'pi_flexform',
+            'fluidcontent_content',
+            'after:header'
+        );
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
+            'tt_content',
+            ',--div--;LLL:EXT:fluidcontent_elements/Resources/Private/Language/locallang_tabs.xlf:notes,rowDescription,',
+            'fluidcontent_content',
+            'before:--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.extended'
+        );
+    }
+);
