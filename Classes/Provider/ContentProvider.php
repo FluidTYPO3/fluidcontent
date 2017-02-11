@@ -99,7 +99,7 @@ class ContentProvider extends FluxContentProvider implements ProviderInterface
      */
     public function processTableConfiguration(array $row, array $configuration)
     {
-        if ($row['CType'] === $this->contentObjectType) {
+        if ($row['CType'] === $this->contentObjectType && isset($configuration['processedTca']['columns']['tx_fed_fcefile'])) {
             // Create values for the fluidcontent type selector
             $configuration['processedTca']['columns']['tx_fed_fcefile']['config']['items'] = array_merge(
                 $configuration['processedTca']['columns']['tx_fed_fcefile']['config']['items'],
