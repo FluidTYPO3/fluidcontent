@@ -8,7 +8,13 @@ call_user_func(
 
         $languageFilePrefix = 'LLL:EXT:fluidcontent/Resources/Private/Language/locallang.xlf:';
         $frontendLanguageFilePrefix = 'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:';
-        $tabsLanguageFilePrefix = 'LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:';
+        if (version_compare(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('core'), '8.0', '<')) {
+            $tabsLanguageFilePrefix = 'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.';
+            $categoryTabLabel = 'LLL:EXT:lang/locallang_tca.xlf:sys_category.tabs.category:category';
+        } else {
+            $tabsLanguageFilePrefix = 'LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:';
+            $categoryTabLabel = $tabsLanguageFilePrefix . 'categories';
+        }
 
         \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns(
             'tt_content',
@@ -30,25 +36,27 @@ call_user_func(
             ]
         );
 
+        $GLOBALS['TCA']['tt_content']['ctrl']['useColumnsForDefaultValues'] .= ',tx_fed_fcefile';
         $GLOBALS['TCA']['tt_content']['ctrl']['requestUpdate'] .= ',tx_fed_fcefile';
         $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
-            --div--;' . $tabsLanguageFilePrefix . 'general,
             --palette--;' . $frontendLanguageFilePrefix . 'palette.general;general,
             --palette--;' . $frontendLanguageFilePrefix . 'palette.header;header,
             --div--;' . $frontendLanguageFilePrefix . 'tabs.appearance, layout;' . $frontendLanguageFilePrefix . 'layout_formlabel,
             --palette--; '. $frontendLanguageFilePrefix . 'palette.frames;frames,
             --palette--;' . $frontendLanguageFilePrefix . 'palette.appearanceLinks;appearanceLinks,
-            --div--;' . $tabsLanguageFilePrefix . 'language, --palette--;;language,
             --div--;' . $tabsLanguageFilePrefix . 'access,
-            --palette--;;hidden,
+            --palette--;' . $frontendLanguageFilePrefix . ';visibility,
             --palette--;' . $frontendLanguageFilePrefix . ':palette.access;access,
-            --div--;' . $tabsLanguageFilePrefix . 'categories, categories,
-            --div--;' . $tabsLanguageFilePrefix . 'notes, rowDescription,
+            --div--;' . $categoryTabLabel . ', categories,
             --div--;' . $tabsLanguageFilePrefix . 'extended,
             --div--;LLL:EXT:flux/Resources/Private/Language/locallang.xlf:tt_content.tabs.relation, tx_flux_parent, tx_flux_column
         ';
 
-        $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes']['fluidcontent_content'] = 'apps-pagetree-root';
+        if (version_compare(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('core'), '8.0', '>=')) {
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', ',--div--;' . $tabsLanguageFilePrefix . 'language, --palette--;;language,', 'fluidcontent_content', 'before:access');
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', ',--div--;' . $tabsLanguageFilePrefix . 'notes, rowDescription,', 'fluidcontent_content', 'after:language');
+        }
+
         \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette(
             'tt_content',
             'general',
@@ -60,12 +68,6 @@ call_user_func(
             'pi_flexform',
             'fluidcontent_content',
             'after:header'
-        );
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
-            'tt_content',
-            ',--div--;LLL:EXT:fluidcontent_elements/Resources/Private/Language/locallang_tabs.xlf:notes,rowDescription,',
-            'fluidcontent_content',
-            'before:--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.extended'
         );
     }
 );
