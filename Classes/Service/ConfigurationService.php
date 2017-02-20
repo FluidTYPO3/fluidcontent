@@ -254,7 +254,7 @@ class ConfigurationService extends FluxService implements SingletonInterface
      */
     protected function getAllRootTypoScriptTemplates()
     {
-        $condition = 'deleted = 0 AND hidden = 0 AND starttime <= :starttime AND (endtime = 0 OR endtime > :endtime)';
+        $condition = 'root=1 AND deleted = 0 AND hidden = 0 AND starttime <= :starttime AND (endtime = 0 OR endtime > :endtime)';
         $parameters = [
             ':starttime' => $GLOBALS['SIM_ACCESS_TIME'],
             ':endtime' => $GLOBALS['SIM_ACCESS_TIME']
