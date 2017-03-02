@@ -15,6 +15,11 @@
             "FluidTYPO3\\Fluidcontent\\": "Classes/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "FluidTYPO3\\Fluidcontent\\Tests\\": "Tests/"
+        }
+    },
     "type": "typo3-cms-extension",
     "keywords": ["TYPO3 CMS", "templating", "bootstrap", "flux", "fluidcontent", "fedext", "fluid"],
     "homepage": "https://fluidtypo3.org",
