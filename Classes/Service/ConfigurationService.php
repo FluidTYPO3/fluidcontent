@@ -432,7 +432,7 @@ class ConfigurationService extends FluxService implements SingletonInterface
                 mod.wizards.newContentElement.wizardItems.%s.position = 0
                 ',
                 $tabId,
-                !empty($existingItems[$tabId]['header']) ? $existingItems[$tabId]['header'] : $tabId,
+                !empty($existingItems[$tabId]['header']) ? $existingItems[$tabId]['header'] : $tab['title'],
                 $tabId,
                 implode(',', array_keys($tab['elements'])),
                 $tabId
