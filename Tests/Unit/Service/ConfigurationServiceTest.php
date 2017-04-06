@@ -121,7 +121,7 @@ class ConfigurationServiceTest extends AbstractTestCase
     public function getSanitizeStringTestValues()
     {
         return array(
-            array('foo bar', 'foo_bar')
+            array('foo bar', 'foobar')
         );
     }
 
