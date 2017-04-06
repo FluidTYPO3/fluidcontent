@@ -293,12 +293,12 @@ class ConfigurationService extends FluxService implements SingletonInterface
                     continue;
                 }
                 $sanitizedGroup = $this->sanitizeString($group);
-                $tabId = $group === $sanitizedGroup ? $group : 'group_' . $sanitizedGroup;
+                $tabId = $group === $sanitizedGroup ? $group : 'group' . $sanitizedGroup;
                 if (!isset($wizardTabs[$tabId]['title'])) {
                     $wizardTabs[$tabId]['title'] = $this->translateLabel(
                         'fluidcontent.newContentWizard.group.' . $group,
                         ExtensionNamingUtility::getExtensionKey($extensionKey)
-                    ) ?? $tabId;
+                    ) ?? $group;
                 }
                 $contentElementId = $form->getOption('contentElementId');
                 $elementTsConfig = $this->buildWizardTabItem($tabId, $id, $form, $contentElementId);
@@ -418,7 +418,7 @@ class ConfigurationService extends FluxService implements SingletonInterface
                 mod.wizards.newContentElement.wizardItems.%s.position = 0
                 ',
                 $tabId,
-                !empty($existingItems[$tabId]['header']) ? $existingItems[$tabId]['header'] : $tabId,
+                !empty($existingItems[$tabId]['header']) ? $existingItems[$tabId]['header'] : $tab['title'],
                 $tabId,
                 implode(',', array_keys($tab['elements'])),
                 $tabId
@@ -527,8 +527,8 @@ class ConfigurationService extends FluxService implements SingletonInterface
     protected function sanitizeString($string)
     {
         $pattern = '/([^a-z0-9\-]){1,}/i';
-        $replaced = preg_replace($pattern, '_', $string);
-        $replaced = trim($replaced, '_');
+        $replaced = preg_replace($pattern, '', $string);
+        $replaced = trim($replaced);
         return empty($replaced) ? md5($string) : $replaced;
     }
 
