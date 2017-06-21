@@ -46,7 +46,7 @@ call_user_func(
             --palette--;' . $frontendLanguageFilePrefix . 'palette.appearanceLinks;appearanceLinks,
             --div--;' . $tabsLanguageFilePrefix . 'access,
             --palette--;' . $frontendLanguageFilePrefix . ';visibility,
-            --palette--;' . $frontendLanguageFilePrefix . ':palette.access;access,
+            --palette--;' . $frontendLanguageFilePrefix . 'palette.access;access,
             --div--;' . $categoryTabLabel . ', categories,
             --div--;' . $tabsLanguageFilePrefix . 'extended,
             --div--;LLL:EXT:flux/Resources/Private/Language/locallang.xlf:tt_content.tabs.relation, tx_flux_parent, tx_flux_column
