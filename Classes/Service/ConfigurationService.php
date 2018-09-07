@@ -18,6 +18,7 @@ use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use FluidTYPO3\Flux\Utility\MiscellaneousUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
+use TYPO3\CMS\Core\Imaging\IconProvider\FontawesomeIconProvider;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -463,6 +464,8 @@ class ConfigurationService extends FluxService implements SingletonInterface
             } elseif ('/' === $icon[0]) {
                 $icon = rtrim(PATH_site, '/') . $icon;
             }
+            
+            $isFontawesomeIcon = false;
             if (true === file_exists($icon) && true === is_file($icon)) {
                 $extension = pathinfo($icon, PATHINFO_EXTENSION);
                 switch (strtolower($extension)) {
@@ -473,23 +476,28 @@ class ConfigurationService extends FluxService implements SingletonInterface
                     default:
                         $iconProvider = BitmapIconProvider::class;
                 }
-                $iconIdentifier = 'icon-fluidcontent-' . $id;
-                $iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
-                $iconRegistry->registerIcon($iconIdentifier, $iconProvider, ['source' => $icon]);
+	    } else {
+                $iconProvider = FontawesomeIconProvider::class;
+                $isFontawesomeIcon = true;
+	    }
+            $iconIdentifier = 'icon-fluidcontent-' . $id;
+            $iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
 
-                if ($this->manager->hasCache('fluidcontent')) {
-                    $this->manager->getCache('fluidcontent')->set(
-                        $iconIdentifier,
-                        [
-                            'provider' => $iconProvider,
-                            'source' => $icon,
-                            'identifier' => $iconIdentifier
-                        ],
-                        [
-                            self::ICON_CACHE_TAG
-                        ]
-                    );
-                }
+            $optionKey = $isFontawesomeIcon ? 'name' : 'source';
+            $iconRegistry->registerIcon($iconIdentifier, $iconProvider, [$optionKey => $icon]);
+
+            if ($this->manager->hasCache('fluidcontent')) {
+                $this->manager->getCache('fluidcontent')->set(
+                    $iconIdentifier,
+                    [
+                        'provider' => $iconProvider,
+                        $optionKey => $icon,
+                        'identifier' => $iconIdentifier
+                    ],
+                    [
+                        self::ICON_CACHE_TAG
+                    ]
+                );
             }
         }
         $defaultValues = [];
