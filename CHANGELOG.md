@@ -2,6 +2,7 @@ Latest release: 5.2.0 (2017/04/26)
 
 All previous release change logs:
 
+* [5.2.1 (2018/08/09)](Documentation/Changelog/5.2.1.md) [Full list of changes](https://github.com/FluidTYPO3/fluidcontent/compare/5.2.0...5.2.1)
 * [5.2.0 (2017/04/26)](Documentation/Changelog/5.2.0.md) [Full list of changes](https://github.com/FluidTYPO3/fluidcontent/compare/5.1.0...5.2.0)
 * [5.1.0 (2017/03/04)](Documentation/Changelog/5.1.0.md) [Full list of changes](https://github.com/FluidTYPO3/fluidcontent/compare/5.0.0...5.1.0)
 * [5.0.0 (2017/01/28)](Documentation/Changelog/5.0.0.md) [Full list of changes](https://github.com/FluidTYPO3/fluidcontent/compare/4.4.1...5.0.0)
