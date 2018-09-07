@@ -42,7 +42,7 @@ call_user_func(
         $GLOBALS['TCA']['tt_content']['types']['fluidcontent_content']['showitem'] = '
             --palette--;' . $frontendLanguageFilePrefix . 'palette.general;general,
             --palette--;' . $frontendLanguageFilePrefix . 'palette.header;header,
-            --div--;' . $frontendLanguageFilePrefix . 'tabs.appearance, layout;' . $frontendLanguageFilePrefix . 'layout_formlabel,
+            --div--;' . $frontendLanguageFilePrefix . 'tabs.appearance,
             --palette--; '. $frontendLanguageFilePrefix . 'palette.frames;frames,
             --palette--;' . $frontendLanguageFilePrefix . 'palette.appearanceLinks;appearanceLinks,
             --div--;' . $tabsLanguageFilePrefix . 'access,
