@@ -16,6 +16,7 @@ use FluidTYPO3\Flux\Service\FluxService;
 use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use FluidTYPO3\Flux\Utility\MiscellaneousUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
@@ -279,6 +280,15 @@ class ConfigurationService extends FluxService implements SingletonInterface
      */
     protected function buildAllWizardTabGroups()
     {
+        $backendUser = null;
+        // workaround to avoid errors if ViewHelpers need access to §GLOBAL['BE_USER'] e.g. the pagination wizard
+        // $GLOBALS['BE_USER'] is not set if buildAllWizardTabGroups is called
+        if ($GLOBALS['BE_USER'] === null) {
+            $backendUser = GeneralUtility::makeInstance(BackendUserAuthentication::class);
+            $GLOBALS['BE_USER'] = $backendUser;
+            $backendUser->start();
+        }
+
         $wizardTabs = [];
         $forms = $this->getContentElementFormInstances();
         foreach ($forms as $extensionKey => $formSet) {
@@ -304,6 +314,10 @@ class ConfigurationService extends FluxService implements SingletonInterface
                 $elementTsConfig = $this->buildWizardTabItem($tabId, $id, $form, $contentElementId);
                 $wizardTabs[$tabId]['elements'][$id] = $elementTsConfig;
             }
+        }
+        if ($backendUser !== null) {
+            // unset $GLOBALS['BE_USER'] if it wasn't exist on calling buildAllWizardTabGroup
+            unset($GLOBALS['BE_USER']);
         }
         return $wizardTabs;
     }
