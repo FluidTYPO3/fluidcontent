@@ -3,12 +3,13 @@
     "description": "Create Flexible Content elements in pure fluid",
     "require": {
         "fluidtypo3/flux": "^7.3|^8.0|dev-development",
-        "typo3/cms": "^7.6|^8.4",
+        "typo3/cms-core": "^7.6|^8.4",
         "php": ">=7.0.0"
     },
     "require-dev": {
         "fluidtypo3/development": "^3.0",
-        "fluidtypo3/flux": "dev-development"
+        "fluidtypo3/flux": "dev-development",
+        "typo3/cms-fluid": "^8.7.10"
     },
     "autoload": {
         "psr-4": {
