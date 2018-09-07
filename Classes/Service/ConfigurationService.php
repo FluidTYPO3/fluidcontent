@@ -325,7 +325,6 @@ class ConfigurationService extends FluxService implements SingletonInterface
             } else {
                 $extensionKey = $registeredExtensionKey;
             }
-            $extensionKey = ExtensionNamingUtility::getExtensionKey($extensionKey);
             $provider->setExtensionKey($extensionKey);
             $templatePaths = new TemplatePaths($templatePathSet);
             foreach ($templatePaths->getTemplateRootPaths() as $templateRootPath) {
